@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { mockAssets, mockTrades, generateOrderBook, Asset, OrderBookEntry, Trade } from '@/data/mockData';
-import { TrendingUp, TrendingDown, Clock, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, Clock, DollarSign, AlertTriangle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const TradingPanel = () => {
+  const { user, currentBalance, isAuthenticated } = useAuth();
   const [selectedAsset, setSelectedAsset] = useState<Asset>(mockAssets[0]);
   const [investment, setInvestment] = useState(100);
   const [orderBook, setOrderBook] = useState<{ bids: OrderBookEntry[], asks: OrderBookEntry[] }>({ bids: [], asks: [] });
@@ -79,12 +82,38 @@ const TradingPanel = () => {
       : price.toFixed(2);
   };
 
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString('en-US', { 
+      style: 'currency', 
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  const canTrade = () => {
+    if (!isAuthenticated) return false;
+    if (user?.accountType === 'demo') return true;
+    if (user?.accountType === 'live' && currentBalance > 0) return true;
+    return false;
+  };
+
   return (
     <section className="bg-background py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold">Advanced Trading Panel</h2>
           <p className="text-muted-foreground mt-2">Complete trading interface with real-time data</p>
+          {isAuthenticated && user && (
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <Badge variant={user.accountType === 'demo' ? 'secondary' : 'default'}>
+                {user.accountType.toUpperCase()} Account
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                Balance: {formatCurrency(currentBalance)}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6">
@@ -149,15 +178,31 @@ const TradingPanel = () => {
 
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Potential Profit</span>
-                <span className="text-primary font-semibold">${potentialProfit} (98%)</span>
+                <span className="text-primary font-semibold">{formatCurrency(potentialProfit)} (98%)</span>
               </div>
 
+              {!canTrade() && (
+                <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm p-3 rounded-md flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  {!isAuthenticated 
+                    ? 'Please log in to start trading' 
+                    : 'Insufficient balance or account not accessible'
+                  }
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
-                <Button className="bg-trading-bull hover:bg-trading-bull/90 h-12">
+                <Button 
+                  className="bg-trading-bull hover:bg-trading-bull/90 h-12"
+                  disabled={!canTrade()}
+                >
                   <TrendingUp className="h-4 w-4 mr-2" />
                   CALL
                 </Button>
-                <Button className="bg-trading-bear hover:bg-trading-bear/90 h-12">
+                <Button 
+                  className="bg-trading-bear hover:bg-trading-bear/90 h-12"
+                  disabled={!canTrade()}
+                >
                   <TrendingDown className="h-4 w-4 mr-2" />
                   PUT
                 </Button>
@@ -211,13 +256,15 @@ const TradingPanel = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="text-sm font-medium">{trade.asset}</div>
-                      <div className="text-xs text-muted-foreground">{trade.time}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(trade.time).toLocaleString('en-US')}
+                      </div>
                     </div>
                     <div className="text-right">
                       <div className={`text-sm font-medium ${trade.type === 'buy' ? 'text-trading-bull' : 'text-trading-bear'}`}>
                         {trade.type.toUpperCase()}
                       </div>
-                      <div className="text-xs">${trade.amount}</div>
+                      <div className="text-xs">{formatCurrency(trade.amount)}</div>
                     </div>
                   </div>
                   
@@ -225,7 +272,7 @@ const TradingPanel = () => {
                     <div className="mt-2 pt-2 border-t border-border/50">
                       <div className={`text-xs flex items-center ${trade.profit >= 0 ? 'text-trading-bull' : 'text-trading-bear'}`}>
                         <DollarSign className="h-3 w-3 mr-1" />
-                        {trade.profit >= 0 ? '+' : ''}{trade.profit.toFixed(2)}
+                        {trade.profit >= 0 ? '+' : ''}{formatCurrency(trade.profit)}
                       </div>
                     </div>
                   )}

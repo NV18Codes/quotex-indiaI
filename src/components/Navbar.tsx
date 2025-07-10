@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, Globe, User } from 'lucide-react';
+import { Menu, X, ChevronDown, Globe, User, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthModal from './AuthModal';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { user, isAuthenticated, logout, currentTime } = useAuth();
 
   const navItems = [
     { name: 'Trading', href: '#trading' },
@@ -47,28 +52,66 @@ const Navbar = () => {
 
           {/* Right side buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Current Time Display */}
+            <div className="text-xs text-muted-foreground hidden lg:block">
+              {currentTime}
+            </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-muted-foreground">
                   <Globe className="h-4 w-4 mr-2" />
-                  EN
+                  EN (US)
                   <ChevronDown className="h-4 w-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>English</DropdownMenuItem>
+                <DropdownMenuItem>English (US)</DropdownMenuItem>
+                <DropdownMenuItem>English (UK)</DropdownMenuItem>
                 <DropdownMenuItem>Español</DropdownMenuItem>
                 <DropdownMenuItem>Français</DropdownMenuItem>
-                <DropdownMenuItem>Deutsch</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="sm">
-              Log In
-            </Button>
-            <Button size="sm" className="bg-primary hover:bg-primary/90">
-              Sign Up
-            </Button>
+            {!isAuthenticated ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  Log In
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  Sign Up
+                </Button>
+              </>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    {user?.name}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -110,17 +153,57 @@ const Navbar = () => {
                 </Button>
               </div>
               <div className="mt-3 px-3 space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  Log In
-                </Button>
-                <Button className="w-full bg-primary hover:bg-primary/90">
-                  Sign Up
-                </Button>
+                {!isAuthenticated ? (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setIsAuthModalOpen(true);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      Log In
+                    </Button>
+                    <Button 
+                      className="w-full bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        setIsAuthModalOpen(true);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-sm font-medium px-3 py-2">
+                      Welcome, {user?.name}
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-destructive"
+                      onClick={() => {
+                        logout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </nav>
   );
 };

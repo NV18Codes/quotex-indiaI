@@ -8,11 +8,16 @@ import Testimonials from '@/components/Testimonials';
 import FAQ from '@/components/FAQ';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
+import AccountDashboard from '@/components/AccountDashboard';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
-const Index = () => {
+const IndexContent = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      {isAuthenticated && <AccountDashboard />}
       <Hero />
       <MarketTicker />
       <TradingChart />
@@ -23,6 +28,14 @@ const Index = () => {
       <CTA />
       <Footer />
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <AuthProvider>
+      <IndexContent />
+    </AuthProvider>
   );
 };
 

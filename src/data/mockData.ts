@@ -99,7 +99,7 @@ export const mockTrades: Trade[] = [
     type: 'buy',
     amount: 100,
     price: 43567.89,
-    time: '14:32:15',
+    time: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
     profit: 23.45
   },
   {
@@ -108,7 +108,7 @@ export const mockTrades: Trade[] = [
     type: 'sell',
     amount: 500,
     price: 2678.45,
-    time: '14:30:42',
+    time: new Date(Date.now() - 180000).toISOString(), // 3 minutes ago
     profit: -12.78
   },
   {
@@ -117,7 +117,7 @@ export const mockTrades: Trade[] = [
     type: 'buy',
     amount: 250,
     price: 189.73,
-    time: '14:28:33',
+    time: new Date(Date.now() - 120000).toISOString(), // 2 minutes ago
     profit: 45.67
   }
 ];
