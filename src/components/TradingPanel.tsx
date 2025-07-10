@@ -70,11 +70,20 @@ const TradingPanel = () => {
   useEffect(() => {
     const savedTrades = localStorage.getItem('userTrades');
     if (savedTrades) {
-      const parsedTrades = JSON.parse(savedTrades).map((trade: any) => ({
-        ...trade,
-        timestamp: new Date(trade.timestamp)
-      }));
-      setActiveTrades(parsedTrades);
+      try {
+        const parsedTrades = JSON.parse(savedTrades).map((trade: any) => ({
+          ...trade,
+          timestamp: new Date(trade.timestamp),
+          timeLeft: trade.timeLeft !== undefined ? trade.timeLeft : 0
+        }));
+        setActiveTrades(parsedTrades);
+      } catch (error) {
+        console.error('Error parsing saved trades:', error);
+        // If parsing fails, initialize with default trades
+        const defaultTrades = user?.tradeHistory || [];
+        setActiveTrades(defaultTrades);
+        localStorage.setItem('userTrades', JSON.stringify(defaultTrades));
+      }
     } else {
       // If no saved trades, initialize with the default trade history from AuthContext
       const defaultTrades = user?.tradeHistory || [];
@@ -87,7 +96,11 @@ const TradingPanel = () => {
   // Save trades to localStorage whenever trades change
   useEffect(() => {
     if (activeTrades.length > 0) {
-      localStorage.setItem('userTrades', JSON.stringify(activeTrades));
+      try {
+        localStorage.setItem('userTrades', JSON.stringify(activeTrades));
+      } catch (error) {
+        console.error('Error saving trades to localStorage:', error);
+      }
     }
   }, [activeTrades]);
 
@@ -95,7 +108,7 @@ const TradingPanel = () => {
     if (!user) return;
 
     const newTrade: Trade = {
-      id: `trade_${Date.now()}`,
+      id: `trade_${Date.now()}_${Math.random()}`, // More unique ID
       symbol: selectedSymbol,
       type,
       amount: tradeAmount,
@@ -110,12 +123,12 @@ const TradingPanel = () => {
     setIsTrading(true);
 
     // Simulate trade result after duration - ALWAYS WIN
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const profit = tradeAmount * (0.7 + Math.random() * 0.6); // Always positive profit
 
       setActiveTrades(prev => 
         prev.map(trade => 
-          trade.id === newTrade.id
+          trade.id === newTrade.id && trade.status === 'pending'
             ? { ...trade, status: 'completed', result: 'win', profit, timeLeft: 0 }
             : trade
         )
@@ -127,7 +140,10 @@ const TradingPanel = () => {
       }
       
       setIsTrading(false);
-    }, (tradeDuration * 1000) + 100); // Add 100ms buffer to prevent race condition
+    }, (tradeDuration * 1000) + 200); // Add 200ms buffer to prevent race condition
+
+    // Cleanup timeout if component unmounts
+    return () => clearTimeout(timeoutId);
   };
 
   // Update countdown for pending trades
@@ -135,11 +151,17 @@ const TradingPanel = () => {
     const interval = setInterval(() => {
       setActiveTrades(prev => 
         prev.map(trade => {
-          if (trade.status === 'pending' && trade.timeLeft && trade.timeLeft > 0) {
-            const newTimeLeft = trade.timeLeft - 1;
+          if (trade.status === 'pending' && trade.timeLeft !== undefined && trade.timeLeft > 0) {
+            const newTimeLeft = Math.max(0, trade.timeLeft - 1);
+            
+            // Debug logging for production
+            if (newTimeLeft <= 5) {
+              console.log(`Trade ${trade.id}: Countdown at ${newTimeLeft}s`);
+            }
             
             // If countdown reaches 0, complete the trade as a win immediately
-            if (newTimeLeft <= 0) {
+            if (newTimeLeft === 0) {
+              console.log(`Trade ${trade.id}: Completing trade as WIN`);
               const profit = trade.amount * (0.7 + Math.random() * 0.6); // Always positive profit
               
               // Update balance for completed trade
@@ -164,6 +186,69 @@ const TradingPanel = () => {
     }, 1000);
 
     return () => clearInterval(interval);
+  }, [updateBalance]);
+
+  // Additional safety mechanism to complete trades that might be stuck
+  useEffect(() => {
+    const safetyInterval = setInterval(() => {
+      setActiveTrades(prev => 
+        prev.map(trade => {
+          if (trade.status === 'pending' && trade.timeLeft !== undefined && trade.timeLeft <= 0) {
+            const profit = trade.amount * (0.7 + Math.random() * 0.6);
+            
+            if (updateBalance) {
+              updateBalance(profit);
+            }
+            
+            return { 
+              ...trade, 
+              status: 'completed', 
+              result: 'win', 
+              profit, 
+              timeLeft: 0 
+            };
+          }
+          return trade;
+        })
+      );
+    }, 2000); // Check every 2 seconds for stuck trades
+
+    return () => clearInterval(safetyInterval);
+  }, [updateBalance]);
+
+  // Force completion mechanism for stuck trades (runs every 5 seconds)
+  useEffect(() => {
+    const forceCompletionInterval = setInterval(() => {
+      setActiveTrades(prev => 
+        prev.map(trade => {
+          // Force complete any pending trade that has been running for too long
+          if (trade.status === 'pending') {
+            const tradeAge = Date.now() - new Date(trade.timestamp).getTime();
+            const maxDuration = (trade.duration + 10) * 1000; // Add 10 seconds buffer
+            
+            if (tradeAge > maxDuration) {
+              console.log(`Trade ${trade.id}: Force completing stuck trade`);
+              const profit = trade.amount * (0.7 + Math.random() * 0.6);
+              
+              if (updateBalance) {
+                updateBalance(profit);
+              }
+              
+              return { 
+                ...trade, 
+                status: 'completed', 
+                result: 'win', 
+                profit, 
+                timeLeft: 0 
+              };
+            }
+          }
+          return trade;
+        })
+      );
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(forceCompletionInterval);
   }, [updateBalance]);
 
   const formatTime = (seconds: number) => {
@@ -339,16 +424,18 @@ const TradingPanel = () => {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-400">Time Remaining:</span>
                         <span className="text-yellow-400 font-mono">
-                          {trade.timeLeft ? formatTime(trade.timeLeft) : '00:00'}
+                          {trade.timeLeft !== undefined ? formatTime(trade.timeLeft) : '00:00'}
                         </span>
                       </div>
                       <Progress 
-                        value={trade.timeLeft ? ((trade.timeLeft / trade.duration) * 100) : 0} 
+                        value={trade.timeLeft !== undefined && trade.duration ? ((trade.timeLeft / trade.duration) * 100) : 0} 
                         className="h-2"
                       />
                       <div className="flex items-center space-x-2 text-yellow-400">
                         <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                        <span className="text-sm">Processing...</span>
+                        <span className="text-sm">
+                          {trade.timeLeft !== undefined && trade.timeLeft <= 0 ? 'Completing...' : 'Processing...'}
+                        </span>
                       </div>
                     </div>
                   ) : (
@@ -362,13 +449,13 @@ const TradingPanel = () => {
                           <XCircle className="h-4 w-4" />
                         )}
                         <span className="font-semibold">
-                          {trade.result?.toUpperCase()}
+                          {trade.result?.toUpperCase() || 'COMPLETED'}
                         </span>
                       </div>
                       <div className={`font-semibold ${
                         trade.profit && trade.profit >= 0 ? 'text-green-400' : 'text-red-400'
                       }`}>
-                        ${trade.profit?.toFixed(2)}
+                        ${trade.profit?.toFixed(2) || '0.00'}
                       </div>
                     </div>
                   )}
