@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
+import DynamicFavicon from './components/DynamicFavicon';
 import Index from './pages/Index';
 import BinaryOptions from './pages/BinaryOptions';
 import Markets from './pages/Markets';
@@ -15,6 +16,7 @@ function App() {
     <AuthProvider>
       <Router>
         <ScrollToTop />
+        <DynamicFavicon />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/binary-options" element={<BinaryOptions />} />

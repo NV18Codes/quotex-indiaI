@@ -28,6 +28,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  updateBalance: (amount: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -119,11 +120,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false);
   };
 
+  const updateBalance = (amount: number) => {
+    if (user) {
+      setUser(prevUser => ({
+        ...prevUser,
+        liveBalance: prevUser.liveBalance + amount
+      }));
+      localStorage.setItem('qxTrader_user', JSON.stringify(user));
+    }
+  };
+
   const value = {
     user,
     login,
     logout,
-    isAuthenticated
+    isAuthenticated,
+    updateBalance
   };
 
   return (
