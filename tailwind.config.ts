@@ -52,6 +52,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				trading: {
+					bull: 'hsl(var(--trading-bull))',
+					bear: 'hsl(var(--trading-bear))',
+					'bg-dark': 'hsl(var(--trading-bg-dark))',
+					surface: 'hsl(var(--trading-surface))',
+					'surface-hover': 'hsl(var(--trading-surface-hover))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
