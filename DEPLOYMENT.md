@@ -31,6 +31,7 @@ vercel
 - **outputDirectory**: `dist`
 - **rewrites**: SPA routing support
 - **headers**: Optimized caching for static assets
+- **type**: Static site deployment (no serverless functions)
 
 ### package.json
 - **build script**: `vite build`
