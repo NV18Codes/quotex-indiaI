@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -107,8 +107,10 @@ const TradingPanel = () => {
   const handleTrade = (type: 'buy' | 'sell') => {
     if (!user) return;
 
+    const tradeId = `trade_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const newTrade: Trade = {
-      id: `trade_${Date.now()}_${Math.random()}`, // More unique ID
+      id: tradeId,
       symbol: selectedSymbol,
       type,
       amount: tradeAmount,
@@ -118,17 +120,20 @@ const TradingPanel = () => {
       timeLeft: tradeDuration
     };
 
+    console.log(`Creating new trade: ${tradeId} with duration: ${tradeDuration}s`);
+
     // Add new trade to the beginning of the existing trade history
     setActiveTrades(prev => [newTrade, ...prev]);
     setIsTrading(true);
 
     // Simulate trade result after duration - ALWAYS WIN
     const timeoutId = setTimeout(() => {
+      console.log(`Timeout completing trade: ${tradeId}`);
       const profit = tradeAmount * (0.7 + Math.random() * 0.6); // Always positive profit
 
       setActiveTrades(prev => 
         prev.map(trade => 
-          trade.id === newTrade.id && trade.status === 'pending'
+          trade.id === tradeId && trade.status === 'pending'
             ? { ...trade, status: 'completed', result: 'win', profit, timeLeft: 0 }
             : trade
         )
@@ -140,17 +145,21 @@ const TradingPanel = () => {
       }
       
       setIsTrading(false);
-    }, (tradeDuration * 1000) + 200); // Add 200ms buffer to prevent race condition
+    }, (tradeDuration * 1000) + 500); // Add 500ms buffer to prevent race condition
 
     // Cleanup timeout if component unmounts
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      console.log(`Cleaned up timeout for trade: ${tradeId}`);
+    };
   };
 
   // Update countdown for pending trades
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveTrades(prev => 
-        prev.map(trade => {
+      setActiveTrades(prev => {
+        let hasChanges = false;
+        const updatedTrades = prev.map(trade => {
           if (trade.status === 'pending' && trade.timeLeft !== undefined && trade.timeLeft > 0) {
             const newTimeLeft = Math.max(0, trade.timeLeft - 1);
             
@@ -162,6 +171,7 @@ const TradingPanel = () => {
             // If countdown reaches 0, complete the trade as a win immediately
             if (newTimeLeft === 0) {
               console.log(`Trade ${trade.id}: Completing trade as WIN`);
+              hasChanges = true;
               const profit = trade.amount * (0.7 + Math.random() * 0.6); // Always positive profit
               
               // Update balance for completed trade
@@ -178,11 +188,18 @@ const TradingPanel = () => {
               };
             }
             
+            if (newTimeLeft !== trade.timeLeft) {
+              hasChanges = true;
+            }
+            
             return { ...trade, timeLeft: newTimeLeft };
           }
           return trade;
-        })
-      );
+        });
+        
+        // Only update state if there are actual changes
+        return hasChanges ? updatedTrades : prev;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
@@ -191,9 +208,12 @@ const TradingPanel = () => {
   // Additional safety mechanism to complete trades that might be stuck
   useEffect(() => {
     const safetyInterval = setInterval(() => {
-      setActiveTrades(prev => 
-        prev.map(trade => {
+      setActiveTrades(prev => {
+        let hasChanges = false;
+        const updatedTrades = prev.map(trade => {
           if (trade.status === 'pending' && trade.timeLeft !== undefined && trade.timeLeft <= 0) {
+            console.log(`Trade ${trade.id}: Safety mechanism completing trade`);
+            hasChanges = true;
             const profit = trade.amount * (0.7 + Math.random() * 0.6);
             
             if (updateBalance) {
@@ -209,8 +229,10 @@ const TradingPanel = () => {
             };
           }
           return trade;
-        })
-      );
+        });
+        
+        return hasChanges ? updatedTrades : prev;
+      });
     }, 2000); // Check every 2 seconds for stuck trades
 
     return () => clearInterval(safetyInterval);
@@ -219,8 +241,9 @@ const TradingPanel = () => {
   // Force completion mechanism for stuck trades (runs every 5 seconds)
   useEffect(() => {
     const forceCompletionInterval = setInterval(() => {
-      setActiveTrades(prev => 
-        prev.map(trade => {
+      setActiveTrades(prev => {
+        let hasChanges = false;
+        const updatedTrades = prev.map(trade => {
           // Force complete any pending trade that has been running for too long
           if (trade.status === 'pending') {
             const tradeAge = Date.now() - new Date(trade.timestamp).getTime();
@@ -228,6 +251,7 @@ const TradingPanel = () => {
             
             if (tradeAge > maxDuration) {
               console.log(`Trade ${trade.id}: Force completing stuck trade`);
+              hasChanges = true;
               const profit = trade.amount * (0.7 + Math.random() * 0.6);
               
               if (updateBalance) {
@@ -244,8 +268,10 @@ const TradingPanel = () => {
             }
           }
           return trade;
-        })
-      );
+        });
+        
+        return hasChanges ? updatedTrades : prev;
+      });
     }, 5000); // Check every 5 seconds
 
     return () => clearInterval(forceCompletionInterval);
@@ -261,20 +287,51 @@ const TradingPanel = () => {
     return symbols.find(s => s.value === selectedSymbol)?.name || selectedSymbol;
   };
 
-  const filteredTrades = activeTrades.filter(trade => {
-    switch (tradeFilter) {
-      case 'buy':
-        return trade.type === 'buy';
-      case 'sell':
-        return trade.type === 'sell';
-      case 'pending':
-        return trade.status === 'pending';
-      case 'completed':
-        return trade.status === 'completed';
-      default:
-        return true;
+  // Memoized countdown display to prevent UI glitches
+  const CountdownDisplay = useCallback(({ trade }: { trade: Trade }) => {
+    if (trade.status !== 'pending' || trade.timeLeft === undefined) {
+      return null;
     }
-  });
+
+    const progressValue = trade.duration ? ((trade.timeLeft / trade.duration) * 100) : 0;
+    const displayText = trade.timeLeft <= 0 ? 'Completing...' : 'Processing...';
+
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-400">Time Remaining:</span>
+          <span className="text-yellow-400 font-mono">
+            {formatTime(trade.timeLeft)}
+          </span>
+        </div>
+        <Progress 
+          value={progressValue} 
+          className="h-2"
+        />
+        <div className="flex items-center space-x-2 text-yellow-400">
+          <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+          <span className="text-sm">{displayText}</span>
+        </div>
+      </div>
+    );
+  }, []);
+
+  const filteredTrades = useMemo(() => {
+    return activeTrades.filter(trade => {
+      switch (tradeFilter) {
+        case 'buy':
+          return trade.type === 'buy';
+        case 'sell':
+          return trade.type === 'sell';
+        case 'pending':
+          return trade.status === 'pending';
+        case 'completed':
+          return trade.status === 'completed';
+        default:
+          return true;
+      }
+    });
+  }, [activeTrades, tradeFilter]);
 
   return (
     <div className="space-y-6">
@@ -420,24 +477,7 @@ const TradingPanel = () => {
                   </div>
 
                   {trade.status === 'pending' ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">Time Remaining:</span>
-                        <span className="text-yellow-400 font-mono">
-                          {trade.timeLeft !== undefined ? formatTime(trade.timeLeft) : '00:00'}
-                        </span>
-                      </div>
-                      <Progress 
-                        value={trade.timeLeft !== undefined && trade.duration ? ((trade.timeLeft / trade.duration) * 100) : 0} 
-                        className="h-2"
-                      />
-                      <div className="flex items-center space-x-2 text-yellow-400">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                        <span className="text-sm">
-                          {trade.timeLeft !== undefined && trade.timeLeft <= 0 ? 'Completing...' : 'Processing...'}
-                        </span>
-                      </div>
-                    </div>
+                    <CountdownDisplay trade={trade} />
                   ) : (
                     <div className="flex items-center justify-between">
                       <div className={`flex items-center space-x-2 ${
