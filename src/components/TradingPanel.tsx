@@ -127,7 +127,7 @@ const TradingPanel = () => {
       }
       
       setIsTrading(false);
-    }, tradeDuration * 1000);
+    }, (tradeDuration * 1000) + 100); // Add 100ms buffer to prevent race condition
   };
 
   // Update countdown for pending trades
@@ -138,8 +138,8 @@ const TradingPanel = () => {
           if (trade.status === 'pending' && trade.timeLeft && trade.timeLeft > 0) {
             const newTimeLeft = trade.timeLeft - 1;
             
-            // If countdown reaches 0, complete the trade as a win
-            if (newTimeLeft === 0) {
+            // If countdown reaches 0, complete the trade as a win immediately
+            if (newTimeLeft <= 0) {
               const profit = trade.amount * (0.7 + Math.random() * 0.6); // Always positive profit
               
               // Update balance for completed trade
