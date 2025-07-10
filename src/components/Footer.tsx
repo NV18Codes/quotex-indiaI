@@ -6,7 +6,7 @@ const Footer = () => {
   const footerLinks = {
     'Trading': [
       'Binary Options',
-      'Forex Trading',
+      'Forex Trading options',
       'Crypto Trading',
       'Stock Trading',
       'Commodities',
