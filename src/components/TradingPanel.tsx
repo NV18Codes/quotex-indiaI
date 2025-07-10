@@ -71,10 +71,11 @@ const TradingPanel = () => {
     const savedTrades = localStorage.getItem('userTrades');
     if (savedTrades) {
       try {
-        const parsedTrades = JSON.parse(savedTrades).map((trade: any) => ({
+        const parsedTrades = JSON.parse(savedTrades).map((trade: Trade) => ({
           ...trade,
           timestamp: new Date(trade.timestamp),
-          timeLeft: trade.timeLeft !== undefined ? trade.timeLeft : 0
+          timeLeft: trade.timeLeft !== undefined ? trade.timeLeft : 0,
+          result: trade.result === 'win' ? 'win' : trade.result === 'loss' ? 'loss' : undefined,
         }));
         setActiveTrades(parsedTrades);
       } catch (error) {
@@ -181,8 +182,8 @@ const TradingPanel = () => {
               
               return { 
                 ...trade, 
-                status: 'completed', 
-                result: 'win', 
+                status: 'completed',
+                result: 'win',
                 profit, 
                 timeLeft: 0 
               };
@@ -222,8 +223,8 @@ const TradingPanel = () => {
             
             return { 
               ...trade, 
-              status: 'completed', 
-              result: 'win', 
+              status: 'completed',
+              result: 'win',
               profit, 
               timeLeft: 0 
             };
@@ -260,8 +261,8 @@ const TradingPanel = () => {
               
               return { 
                 ...trade, 
-                status: 'completed', 
-                result: 'win', 
+                status: 'completed',
+                result: 'win',
                 profit, 
                 timeLeft: 0 
               };
@@ -286,8 +287,9 @@ const TradingPanel = () => {
           hasChanges = true;
           const profit = trade.amount * (0.7 + Math.random() * 0.6);
           if (updateBalance) updateBalance(profit);
+          const { status, result, ...rest } = trade;
           return {
-            ...trade,
+            ...rest,
             status: 'completed',
             result: 'win',
             profit,
@@ -299,6 +301,17 @@ const TradingPanel = () => {
       return hasChanges ? updatedTrades : prev;
     });
   }, [activeTrades, updateBalance]);
+
+  // Defensive: Clamp any negative timeLeft to 0
+  useEffect(() => {
+    setActiveTrades(prev =>
+      prev.map(trade =>
+        trade.status === 'pending' && typeof trade.timeLeft === 'number' && trade.timeLeft < 0
+          ? { ...trade, timeLeft: 0 }
+          : trade
+      )
+    );
+  }, [activeTrades]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -312,8 +325,11 @@ const TradingPanel = () => {
 
   // Memoized countdown display to prevent UI glitches
   const CountdownDisplay = useCallback(({ trade }: { trade: Trade }) => {
-    // Show WIN if trade is completed OR if timeLeft is 0 or less (even if status is still pending)
-    if (trade.status === 'completed' || (trade.status === 'pending' && trade.timeLeft !== undefined && trade.timeLeft <= 0)) {
+    // Always show WIN if timeLeft is 0 or less, or if status is completed
+    if (
+      trade.status === 'completed' ||
+      (trade.timeLeft !== undefined && trade.timeLeft <= 0)
+    ) {
       return (
         <div className="flex items-center space-x-2 text-green-400 font-bold text-lg">
           <span>WIN</span>
@@ -476,7 +492,7 @@ const TradingPanel = () => {
               <Filter className="h-4 w-4 text-gray-400" />
               <select
                 value={tradeFilter}
-                onChange={(e) => setTradeFilter(e.target.value as any)}
+                onChange={(e) => setTradeFilter(e.target.value as 'all' | 'buy' | 'sell' | 'pending' | 'completed')}
                 className="bg-gray-700 border-gray-600 text-white text-sm rounded px-2 py-1"
               >
                 <option value="all">All Trades</option>
