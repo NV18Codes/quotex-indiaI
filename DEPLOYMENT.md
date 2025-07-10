@@ -30,7 +30,7 @@ vercel
 - **buildCommand**: `npm run build`
 - **outputDirectory**: `dist`
 - **rewrites**: SPA routing support
-- **headers**: Proper MIME types for JavaScript modules
+- **headers**: Optimized caching for static assets
 
 ### package.json
 - **build script**: `vite build`
@@ -66,7 +66,7 @@ dist/
    - ✅ Fixed: Added `outputDirectory: "dist"` to vercel.json
 
 2. **MIME type errors**
-   - ✅ Fixed: Added proper Content-Type headers
+   - ✅ Fixed: Vercel automatically handles JavaScript MIME types
 
 3. **SPA routing issues**
    - ✅ Fixed: Added rewrites for client-side routing
