@@ -47,6 +47,18 @@ const RecentTrades = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleUpdate = () => {
+      const savedTrades = localStorage.getItem('userTrades');
+      if (savedTrades) {
+        // Re-parse and update state or force re-render
+        window.location.reload(); // TEMP: force reload for instant sync
+      }
+    };
+    window.addEventListener('trades-updated', handleUpdate);
+    return () => window.removeEventListener('trades-updated', handleUpdate);
+  }, []);
+
   const formatTime = (timestamp: Date | string) => {
     const dateObj = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
     if (!dateObj || isNaN(dateObj.getTime())) {
