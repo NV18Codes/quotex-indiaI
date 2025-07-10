@@ -312,13 +312,18 @@ const TradingPanel = () => {
 
   // Memoized countdown display to prevent UI glitches
   const CountdownDisplay = useCallback(({ trade }: { trade: Trade }) => {
+    if (trade.status === 'completed') {
+      return (
+        <div className="flex items-center space-x-2 text-green-400 font-bold text-lg">
+          <span>WIN</span>
+        </div>
+      );
+    }
     if (trade.status !== 'pending' || trade.timeLeft === undefined) {
       return null;
     }
-
     const progressValue = trade.duration ? ((trade.timeLeft / trade.duration) * 100) : 0;
     const displayText = trade.timeLeft <= 0 ? 'Completing...' : 'Processing...';
-
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
