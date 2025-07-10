@@ -277,6 +277,29 @@ const TradingPanel = () => {
     return () => clearInterval(forceCompletionInterval);
   }, [updateBalance]);
 
+  // FINAL safety: Always complete any pending trade with timeLeft <= 0
+  useEffect(() => {
+    setActiveTrades(prev => {
+      let hasChanges = false;
+      const updatedTrades = prev.map(trade => {
+        if (trade.status === 'pending' && trade.timeLeft !== undefined && trade.timeLeft <= 0) {
+          hasChanges = true;
+          const profit = trade.amount * (0.7 + Math.random() * 0.6);
+          if (updateBalance) updateBalance(profit);
+          return {
+            ...trade,
+            status: 'completed',
+            result: 'win',
+            profit,
+            timeLeft: 0,
+          };
+        }
+        return trade;
+      });
+      return hasChanges ? updatedTrades : prev;
+    });
+  }, [activeTrades, updateBalance]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
