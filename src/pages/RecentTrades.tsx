@@ -37,7 +37,15 @@ const RecentTrades = () => {
   const [tradeFilter, setTradeFilter] = useState<'all' | 'buy' | 'sell' | 'win' | 'loss'>('all');
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
 
-  // Remove local fake trade generation, use only unified trades
+  // Ensure trades are available
+  useEffect(() => {
+    // If no trades in localStorage, initialize them
+    const savedTrades = localStorage.getItem('userTrades');
+    if (!savedTrades) {
+      // This will trigger the getUnifiedTradeData function to generate trades
+      getUnifiedTradeData();
+    }
+  }, []);
 
   const formatTime = (timestamp: Date | string) => {
     const dateObj = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;

@@ -92,13 +92,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check for existing login on app start
+  // Check for existing login on app start and initialize trade data
   useEffect(() => {
     const savedUser = localStorage.getItem('qxTrader_user');
     if (savedUser) {
       const userData = JSON.parse(savedUser);
       setUser(userData);
       setIsAuthenticated(true);
+    }
+    
+    // Always ensure trade data is available in localStorage
+    const existingTrades = localStorage.getItem('userTrades');
+    if (!existingTrades) {
+      // Initialize with default trade data
+      const defaultTrades = generateTradeHistory().map(trade => ({
+        ...trade,
+        status: 'completed'
+      }));
+      localStorage.setItem('userTrades', JSON.stringify(defaultTrades));
     }
   }, []);
 
@@ -109,6 +120,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('qxTrader_user', JSON.stringify(defaultUser));
       setUser(defaultUser);
       setIsAuthenticated(true);
+      
+      // Ensure trade data is available after login
+      const existingTrades = localStorage.getItem('userTrades');
+      if (!existingTrades) {
+        const defaultTrades = generateTradeHistory().map(trade => ({
+          ...trade,
+          status: 'completed'
+        }));
+        localStorage.setItem('userTrades', JSON.stringify(defaultTrades));
+      }
       return true;
     }
     return false;
@@ -122,11 +143,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateBalance = (amount: number) => {
     if (user) {
-      setUser(prevUser => ({
-        ...prevUser,
-        liveBalance: prevUser.liveBalance + amount
-      }));
-      localStorage.setItem('qxTrader_user', JSON.stringify(user));
+      const updatedUser = {
+        ...user,
+        liveBalance: user.liveBalance + amount
+      };
+      setUser(updatedUser);
+      localStorage.setItem('qxTrader_user', JSON.stringify(updatedUser));
     }
   };
 
@@ -148,43 +170,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Helper to get unified trade history and stats
 export function getUnifiedTradeData(userTradeHistory?: any[]): { trades: any[]; stats: { totalTrades: number; winRate: number; totalProfit: number; winningTrades: number; } } {
   let baseTrades: any[] = [];
-  if (userTradeHistory) {
-    baseTrades = userTradeHistory;
-  }
+  
+  // First, try to get trades from localStorage
   const savedTrades = localStorage.getItem('userTrades');
   if (savedTrades) {
-    baseTrades = JSON.parse(savedTrades).map((trade: any) => ({
-      ...trade,
-      timestamp: new Date(trade.timestamp)
-    }));
+    try {
+      baseTrades = JSON.parse(savedTrades).map((trade: any) => ({
+        ...trade,
+        timestamp: new Date(trade.timestamp),
+        status: trade.status || 'completed'
+      }));
+      console.log('Loaded trades from localStorage:', baseTrades.length);
+    } catch (error) {
+      console.error('Error parsing saved trades:', error);
+      baseTrades = [];
+    }
   }
-  // Only add fake trades if not already present
+  
+  // If no trades in localStorage, use userTradeHistory
+  if (baseTrades.length === 0 && userTradeHistory) {
+    baseTrades = userTradeHistory.map(trade => ({
+      ...trade,
+      status: 'completed'
+    }));
+    console.log('Using userTradeHistory:', baseTrades.length);
+  }
+  
+  // If still no trades, generate default trades
+  if (baseTrades.length === 0) {
+    console.log('Generating default trades...');
+    const defaultTrades = generateTradeHistory().map(trade => ({
+      ...trade,
+      status: 'completed'
+    }));
+    baseTrades = defaultTrades;
+    // Save to localStorage for future use
+    localStorage.setItem('userTrades', JSON.stringify(defaultTrades));
+    console.log('Generated and saved default trades:', baseTrades.length);
+  }
+  
+  // Ensure we have enough trades (at least 11893)
   if (baseTrades.length < 11893) {
-    const fakeTrades: any[] = [];
-    const winCount = Math.floor(11893 * 0.95);
-    for (let i = 0; i < 11893; i++) {
+    console.log('Adding additional trades to reach 11893...');
+    const additionalTrades = [];
+    const currentCount = baseTrades.length;
+    const neededCount = 11893 - currentCount;
+    const winCount = Math.floor(neededCount * 0.95);
+    
+    for (let i = 0; i < neededCount; i++) {
       const isWin = i < winCount;
       const profit = isWin ? 30 + Math.random() * 50 : -30 - Math.random() * 30;
-      fakeTrades.push({
-        id: `fake_${i}`,
+      additionalTrades.push({
+        id: `additional_${currentCount + i}`,
         symbol: i % 4 === 0 ? 'EUR/USD' : i % 4 === 1 ? 'BTC/USD' : i % 4 === 2 ? 'GBP/USD' : 'XAU/USD',
         type: i % 2 === 0 ? 'buy' : 'sell',
         amount: 100 + Math.floor(Math.random() * 400),
         duration: 60,
         result: isWin ? 'win' : 'loss',
         profit,
-        timestamp: new Date(Date.now() - (i * 60000)),
+        timestamp: new Date(Date.now() - ((currentCount + i) * 60000)),
         status: 'completed'
       });
     }
-    baseTrades = [...fakeTrades, ...baseTrades];
+    baseTrades = [...additionalTrades, ...baseTrades];
+    // Update localStorage
+    localStorage.setItem('userTrades', JSON.stringify(baseTrades));
+    console.log('Added additional trades. Total now:', baseTrades.length);
   }
+  
   // Calculate stats
   const completedTrades = baseTrades.filter(trade => trade.status === 'completed');
   const totalTrades = completedTrades.length;
   const winningTrades = completedTrades.filter(trade => trade.result === 'win').length;
   const totalProfit = completedTrades.reduce((sum, trade) => sum + (trade.profit || 0), 0);
   const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+  
+  console.log('Final trade stats:', { totalTrades, winRate, totalProfit, winningTrades });
+  
   return {
     trades: baseTrades,
     stats: {

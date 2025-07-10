@@ -29,6 +29,15 @@ const TradingDashboard = () => {
   const [liveBalance, setLiveBalance] = useState(user?.liveBalance || 0);
   const { trades: unifiedTrades, stats: unifiedStats } = getUnifiedTradeData(user?.tradeHistory);
 
+  // Ensure trade data is available
+  useEffect(() => {
+    const savedTrades = localStorage.getItem('userTrades');
+    if (!savedTrades) {
+      // This will trigger the getUnifiedTradeData function to generate trades
+      getUnifiedTradeData();
+    }
+  }, []);
+
   // Generate mock market data
   const markets = [
     { symbol: 'EUR/USD', currentPrice: 1.0856, changePercent: 0.21, volume: 1250000 },
