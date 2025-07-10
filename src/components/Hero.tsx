@@ -1,127 +1,133 @@
 import { Button } from '@/components/ui/button';
-import { Play, TrendingUp, Shield, Award } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, TrendingUp, Shield, Zap, Users, User, Play } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
+import AuthModal from './AuthModal';
 
 const Hero = () => {
+  const { isAuthenticated, user } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  if (isAuthenticated) {
+    return null; // Don't show hero for authenticated users
+  }
+
   const features = [
     {
       icon: TrendingUp,
-      title: 'High Returns',
-      description: 'Up to 98% profit on successful trades'
+      title: "Advanced Analytics",
+      description: "Real-time charts and technical indicators for informed decisions"
     },
     {
       icon: Shield,
-      title: 'Secure Trading',
-      description: 'Advanced security protocols and regulation'
+      title: "Secure Trading",
+      description: "Bank-level security with encrypted transactions and data protection"
     },
     {
-      icon: Award,
-      title: 'Award Winning',
-      description: 'Recognized trading platform with millions of users'
+      icon: Zap,
+      title: "Lightning Fast",
+      description: "Execute trades in milliseconds with our high-performance platform"
+    },
+    {
+      icon: Users,
+      title: "24/7 Support",
+      description: "Round-the-clock customer support to help you succeed"
     }
   ];
 
   return (
-    <section className="relative bg-gradient-to-br from-background via-background to-trading-bg-dark min-h-screen flex items-center">
+    <section className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden">
+      {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-                Trade Binary Options with
-                <span className="text-primary block">Confidence</span>
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-lg">
-                Join millions of traders on the world's leading binary options platform. 
-                Start with just $10 and earn up to 98% profit.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-4">
-                Start Trading Now
-              </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
-                <Play className="h-5 w-5 mr-2" />
-                Watch Demo
-              </Button>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-6 pt-8">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <feature.icon className="h-5 w-5 text-primary" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-sm">{feature.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{feature.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="text-center">
+          {/* Main Heading */}
+          <div className="mb-8">
+            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 mb-6 px-4 py-2 text-sm font-medium">
+              🚀 #1 Trading Platform in the US
+            </Badge>
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Trade with
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"> Confidence</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Experience the future of trading with our advanced platform. 
+              <span className="font-semibold text-gray-900"> Start with $10,000 demo account</span> and trade like a pro.
+            </p>
           </div>
 
-          {/* Right Content - Trading Preview */}
-          <div className="relative">
-            <div className="bg-card rounded-xl border border-border p-6 shadow-2xl">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Live Trading</h3>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    <span className="text-sm text-muted-foreground">Live</span>
-                  </div>
-                </div>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <Button 
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-3 text-lg font-semibold"
+            >
+              <User className="h-5 w-5 mr-2" />
+              Start Trading Now
+            </Button>
+            <Button
+              onClick={() => setIsAuthModalOpen(true)}
+              variant="outline"
+              className="bg-gray-700 text-white border-gray-600 hover:bg-white hover:text-gray-700 px-8 py-3 text-lg font-semibold"
+            >
+              <Play className="h-5 w-5 mr-2" />
+              Watch Demo
+            </Button>
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-trading-surface rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground">BTC/USD</div>
-                    <div className="text-xl font-bold text-trading-bull">$43,567.89</div>
-                    <div className="text-sm text-trading-bull">+2.91%</div>
-                  </div>
-                  <div className="bg-trading-surface rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground">EUR/USD</div>
-                    <div className="text-xl font-bold text-trading-bear">$1.0876</div>
-                    <div className="text-sm text-trading-bear">-0.11%</div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Investment</span>
-                    <span>$100</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Potential Profit</span>
-                    <span className="text-primary font-semibold">$98</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button className="flex-1 bg-trading-bull hover:bg-trading-bull/90">
-                      CALL ↑
-                    </Button>
-                    <Button className="flex-1 bg-trading-bear hover:bg-trading-bear/90">
-                      PUT ↓
-                    </Button>
-                  </div>
-                </div>
-              </div>
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">500K+</div>
+              <div className="text-gray-600 font-medium">Active Traders</div>
             </div>
-
-            {/* Floating elements */}
-            <div className="absolute -top-4 -right-4 bg-primary text-primary-foreground rounded-full px-3 py-1 text-sm font-semibold">
-              98% ROI
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-green-600 mb-2">$2.5B+</div>
+              <div className="text-gray-600 font-medium">Trading Volume</div>
             </div>
-            <div className="absolute -bottom-4 -left-4 bg-accent text-accent-foreground rounded-full px-3 py-1 text-sm font-semibold">
-              $10 Min
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">98%</div>
+              <div className="text-gray-600 font-medium">Success Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-2">24/7</div>
+              <div className="text-gray-600 font-medium">Support</div>
             </div>
           </div>
         </div>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+          {features.map((feature, index) => (
+            <Card key={index} className="bg-white/80 backdrop-blur-sm border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Trust Indicators */}
+        <div className="mt-16 text-center">
+          <p className="text-gray-500 text-sm mb-4">Trusted by traders worldwide</p>
+          <div className="flex justify-center items-center space-x-8 opacity-60">
+            <div className="text-gray-400 font-semibold">SEC Regulated</div>
+            <div className="text-gray-400 font-semibold">•</div>
+            <div className="text-gray-400 font-semibold">SSL Encrypted</div>
+            <div className="text-gray-400 font-semibold">•</div>
+            <div className="text-gray-400 font-semibold">24/7 Support</div>
+          </div>
+        </div>
       </div>
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </section>
   );
 };

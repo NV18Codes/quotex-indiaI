@@ -1,31 +1,26 @@
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { useAuth } from '@/contexts/AuthContext';
-import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('demo@qxbroker.com');
-  const [password, setPassword] = useState('password123');
+const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,106 +31,135 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       const success = await login(email, password);
       if (success) {
         onClose();
+        setEmail('');
+        setPassword('');
+        // Redirect to dashboard after successful login
+        navigate('/');
       } else {
-        setError('Invalid credentials. Please try again.');
+        setError('Invalid email or password. Please try again.');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleClose = () => {
+    setEmail('');
+    setPassword('');
+    setError('');
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center">
-            {isLogin ? 'Welcome Back!' : 'Create Account'}
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            {isLogin 
-              ? 'Sign in to access your trading account' 
-              : 'Join thousands of successful traders'
-            }
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-xl font-bold text-white">Sign In</DialogTitle>
+          <DialogDescription className="text-gray-400 text-sm">
+            Welcome back! Please sign in to your account.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-md">
-              {error}
-            </div>
+            <Alert className="bg-red-900/20 border-red-600 text-red-400">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
-                required
-              />
-            </div>
+            <Label htmlFor="email" className="text-gray-300">
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-gray-300">
+              Password
+            </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10"
+                placeholder="Enter your password"
                 required
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 pr-10"
               />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-300"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+              </Button>
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full bg-primary hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
-          </Button>
-
-          <div className="text-center">
-            <button
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="remember"
+                className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+              />
+              <Label htmlFor="remember" className="text-sm text-gray-400">
+                Remember me
+              </Label>
+            </div>
+            <Button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
+              variant="link"
+              className="text-sm text-blue-400 hover:text-blue-300 p-0 h-auto"
             >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : 'Already have an account? Sign in'
-              }
-            </button>
+              Forgot password?
+            </Button>
           </div>
 
-          {isLogin && (
-            <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
-              <p className="font-medium mb-1">Demo Credentials:</p>
-              <p>Email: demo@qxbroker.com</p>
-              <p>Password: password123</p>
-            </div>
-          )}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
+          </Button>
         </form>
+
+        <div className="mt-6 pt-6 border-t border-gray-700">
+          <div className="text-center">
+            <p className="text-sm text-gray-400">
+              Don't have an account?{' '}
+              <Button
+                type="button"
+                variant="link"
+                className="text-blue-400 hover:text-blue-300 p-0 h-auto text-sm"
+              >
+                Contact support
+              </Button>
+            </p>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

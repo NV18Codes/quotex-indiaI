@@ -1,13 +1,17 @@
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, User } from 'lucide-react';
+import { Button } from './ui/button';
+import { useState } from 'react';
 
 const Testimonials = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const testimonials = [
     {
       id: 1,
       name: 'Sarah Johnson',
       role: 'Professional Trader',
       avatar: 'SJ',
-      content: 'QXBroker has transformed my trading experience. The platform is intuitive, fast, and the returns are excellent. I\'ve been consistently profitable for over 8 months now.',
+      content: 'Quotex has transformed my trading experience. The platform is intuitive, fast, and the returns are excellent. I\'ve been consistently profitable for over 8 months now.',
       rating: 5,
       profit: '+$12,450'
     },
@@ -52,52 +56,61 @@ const Testimonials = () => {
       name: 'James Wilson',
       role: 'Swing Trader',
       avatar: 'JW',
-      content: 'QXBroker\'s analysis tools helped me improve my win rate significantly. The platform is reliable and payouts are always processed quickly.',
+      content: 'Quotex\'s analysis tools helped me improve my win rate significantly. The platform is reliable and payouts are always processed quickly.',
       rating: 5,
       profit: '+$9,230'
     }
   ];
 
   return (
-    <section className="py-20 bg-trading-bg-dark">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">What Our Traders Say</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Join thousands of successful traders who trust QXBroker for their binary options trading
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Traders Say</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Join thousands of successful traders who trust Quotex for their binary options trading
           </p>
+          <div className="flex justify-center">
+            <Button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bg-gray-700 text-white hover:bg-white hover:text-gray-700 px-8 py-3 text-lg font-semibold"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Join Success Stories
+            </Button>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-card rounded-xl border border-border p-6 relative">
-              <Quote className="absolute top-4 right-4 h-8 w-8 text-primary/20" />
+            <div key={testimonial.id} className="bg-white rounded-xl border border-gray-200 p-6 relative shadow-sm hover:shadow-md transition-shadow duration-200">
+              <Quote className="absolute top-4 right-4 h-8 w-8 text-blue-200" />
               
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary font-semibold">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
                   {testimonial.avatar}
                 </div>
                 <div className="ml-4">
-                  <h4 className="font-semibold">{testimonial.name}</h4>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                  <p className="text-sm text-gray-600">{testimonial.role}</p>
                 </div>
               </div>
 
               <div className="flex mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-accent fill-current" />
+                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
                 ))}
               </div>
 
-              <p className="text-muted-foreground mb-4 italic">
+              <p className="text-gray-600 mb-4 italic leading-relaxed">
                 "{testimonial.content}"
               </p>
 
               <div className="flex justify-between items-center">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-gray-500">
                   Total Profit
                 </div>
-                <div className="text-lg font-bold text-trading-bull">
+                <div className="text-lg font-bold text-green-600">
                   {testimonial.profit}
                 </div>
               </div>
@@ -111,13 +124,13 @@ const Testimonials = () => {
             <div className="flex items-center space-x-2">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-accent fill-current" />
+                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                 ))}
               </div>
-              <span className="text-lg font-semibold">4.9/5</span>
-              <span className="text-muted-foreground">(12,847 reviews)</span>
+              <span className="text-lg font-semibold text-gray-900">4.9/5</span>
+              <span className="text-gray-600">(12,847 reviews)</span>
             </div>
-            <div className="text-muted-foreground">
+            <div className="text-gray-600">
               Trusted by 5+ million traders worldwide
             </div>
           </div>

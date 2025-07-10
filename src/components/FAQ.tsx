@@ -1,102 +1,93 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User } from 'lucide-react';
+import AuthModal from './AuthModal';
 
 const FAQ = () => {
   const [openItem, setOpenItem] = useState<number | null>(0);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const faqs = [
     {
-      question: 'What is binary options trading?',
-      answer: 'Binary options trading involves predicting whether the price of an asset will go up or down within a specific time frame. If your prediction is correct, you earn a fixed payout. If incorrect, you lose your investment amount.'
+      question: 'What are binary options?',
+      answer: 'Binary options are financial instruments that allow you to predict whether the price of an asset will go up or down within a specified time frame. You earn a fixed payout if your prediction is correct.'
     },
     {
-      question: 'What is the minimum deposit required?',
-      answer: 'You can start trading with as little as $10. We believe in making trading accessible to everyone, regardless of their initial capital.'
+      question: 'How do I start trading?',
+      answer: 'To start trading, simply create an account, deposit funds, choose an asset, set your investment amount and time frame, then predict whether the price will go up (CALL) or down (PUT).'
     },
     {
-      question: 'How much can I earn from trading?',
-      answer: 'Profits can range up to 98% of your investment amount on successful trades. However, trading involves risk and past performance does not guarantee future results.'
+      question: 'What is the minimum deposit?',
+      answer: 'The minimum deposit is $10, making it accessible for traders of all levels. You can start with small amounts and gradually increase your investments as you gain experience.'
     },
     {
-      question: 'Is QXBroker regulated and safe?',
-      answer: 'Yes, QXBroker is fully licensed and regulated. We use advanced encryption technology to protect your personal and financial information, and all client funds are kept in segregated accounts.'
+      question: 'How fast are payouts processed?',
+      answer: 'Payouts are processed instantly after each trade. Winning trades are credited to your account balance immediately, while losing trades are deducted from your investment amount.'
     },
     {
-      question: 'What assets can I trade?',
-      answer: 'We offer over 100 trading instruments including forex pairs, cryptocurrencies, stocks, commodities, and indices. You can trade major assets like BTC/USD, EUR/USD, Gold, Apple stocks, and many more.'
-    },
-    {
-      question: 'How long do trades last?',
-      answer: 'Trade durations range from 1 minute to several hours. You can choose short-term trades for quick profits or longer-term trades for more strategic positioning.'
+      question: 'Is the platform secure?',
+      answer: 'Yes, we use bank-level SSL encryption to protect your data and funds. Our platform is licensed and regulated, ensuring the highest security standards for all transactions.'
     },
     {
       question: 'Can I trade on mobile?',
-      answer: 'Yes, our platform is fully responsive and works perfectly on mobile devices. We also have dedicated mobile apps for iOS and Android for the best trading experience on the go.'
-    },
-    {
-      question: 'How do I withdraw my profits?',
-      answer: 'Withdrawals are processed quickly and securely. You can withdraw funds using the same method you used for deposits. Most withdrawals are processed within 24 hours.'
+      answer: 'Absolutely! Our platform is fully responsive and works perfectly on all devices including smartphones and tablets. You can trade anywhere, anytime with our mobile-optimized interface.'
     }
   ];
 
-  const toggleItem = (index: number) => {
-    setOpenItem(openItem === index ? null : index);
-  };
-
   return (
-    <section className="py-20 bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-          <p className="text-xl text-muted-foreground">
-            Get answers to the most common questions about trading with QXBroker
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <div key={index} className="bg-card rounded-xl border border-border overflow-hidden">
-              <button
-                onClick={() => toggleItem(index)}
-                className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-muted/50 transition-colors"
-              >
-                <h3 className="text-lg font-semibold pr-4">{faq.question}</h3>
-                {openItem === index ? (
-                  <ChevronUp className="h-5 w-5 text-primary flex-shrink-0" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                )}
-              </button>
-              
-              {openItem === index && (
-                <div className="px-6 pb-4">
-                  <div className="border-t border-border pt-4">
-                    <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <div className="bg-card rounded-xl border border-border p-8">
-            <h3 className="text-xl font-semibold mb-4">Still have questions?</h3>
-            <p className="text-muted-foreground mb-6">
-              Our 24/7 support team is here to help you with any questions or concerns.
+    <>
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-600">
+              Get answers to the most common questions about binary options trading
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+              <Button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-gray-700 text-white hover:bg-white hover:text-gray-700 px-8 py-3 text-lg font-semibold"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Get Started Today
+              </Button>
+              <Button variant="outline" className="bg-gray-700 text-white border-gray-600 hover:bg-white hover:text-gray-700 font-medium">
                 Contact Support
-              </button>
-              <button className="px-6 py-3 border border-border rounded-lg font-medium hover:bg-muted/50 transition-colors">
-                Live Chat
-              </button>
+              </Button>
             </div>
           </div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div key={index} className="bg-white rounded-lg border border-gray-200">
+                <button
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setOpenItem(openItem === index ? null : index)}
+                >
+                  <span className="font-semibold text-gray-900">{faq.question}</span>
+                  {openItem === index ? (
+                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+                {openItem === index && (
+                  <div className="px-6 pb-4">
+                    <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+    </>
   );
 };
 

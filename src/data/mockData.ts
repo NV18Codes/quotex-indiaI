@@ -59,8 +59,8 @@ export const mockAssets: Asset[] = [
   },
   {
     id: '3',
-    name: 'Apple Inc',
-    symbol: 'AAPL',
+    name: 'Tesla Inc',
+    symbol: 'TSLA',
     price: 189.73,
     change: 2.45,
     changePercent: 1.31,
@@ -89,6 +89,39 @@ export const mockAssets: Asset[] = [
     volume: '1.2B',
     high24h: 2045.8,
     low24h: 2028.9
+  },
+  {
+    id: '6',
+    name: 'S&P 500',
+    symbol: 'SPX',
+    price: 4567.89,
+    change: 23.45,
+    changePercent: 0.52,
+    volume: '3.1B',
+    high24h: 4580.2,
+    low24h: 4540.1
+  },
+  {
+    id: '7',
+    name: 'Crude Oil',
+    symbol: 'WTI/USD',
+    price: 78.45,
+    change: -1.23,
+    changePercent: -1.54,
+    volume: '1.5B',
+    high24h: 80.1,
+    low24h: 77.8
+  },
+  {
+    id: '8',
+    name: 'USD/JPY',
+    symbol: 'USD/JPY',
+    price: 149.23,
+    change: 0.45,
+    changePercent: 0.30,
+    volume: '2.8B',
+    high24h: 149.8,
+    low24h: 148.9
   }
 ];
 
@@ -142,15 +175,28 @@ export const generateOrderBook = (basePrice: number): { bids: OrderBookEntry[], 
 
 export const generateChartData = (days: number = 30): ChartData[] => {
   const data: ChartData[] = [];
-  let basePrice = 43000;
+  let basePrice = 43567.89; // Start with current BTC price
   const now = new Date();
   
+  // Generate more realistic candlestick data with proper OHLC
   for (let i = days; i >= 0; i--) {
     const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const open = basePrice + (Math.random() - 0.5) * 1000;
-    const close = open + (Math.random() - 0.5) * 2000;
-    const high = Math.max(open, close) + Math.random() * 500;
-    const low = Math.min(open, close) - Math.random() * 500;
+    
+    // Add some trend and volatility
+    const trend = Math.sin(i * 0.1) * 0.02; // Cyclical trend
+    const volatility = 0.015; // 1.5% daily volatility
+    const randomWalk = (Math.random() - 0.5) * volatility;
+    
+    const priceChange = basePrice * (trend + randomWalk);
+    const open = basePrice;
+    const close = basePrice + priceChange;
+    
+    // Generate realistic high and low based on open/close
+    const bodyRange = Math.abs(close - open);
+    const wickRange = bodyRange * (1 + Math.random() * 2); // Wick can be 1-3x body size
+    
+    const high = Math.max(open, close) + Math.random() * wickRange;
+    const low = Math.min(open, close) - Math.random() * wickRange;
     
     data.push({
       time: date.toISOString().split('T')[0],
@@ -158,7 +204,7 @@ export const generateChartData = (days: number = 30): ChartData[] => {
       high,
       low,
       close,
-      volume: Math.random() * 1000000 + 500000
+      volume: Math.random() * 2000000 + 1000000 // 1-3M volume
     });
     
     basePrice = close;

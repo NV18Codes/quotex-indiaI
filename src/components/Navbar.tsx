@@ -1,210 +1,254 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, Globe, User, LogOut } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Menu, 
+  X, 
+  User, 
+  LogOut, 
+  Settings,
+  DollarSign,
+  BarChart3,
+  BookOpen,
+  Info,
+  Home,
+  Clock
+} from 'lucide-react';
 import AuthModal from './AuthModal';
 
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, isAuthenticated, logout, currentTime } = useAuth();
+  const location = useLocation();
 
-  const navItems = [
-    { name: 'Trading', href: '#trading' },
-    { name: 'Markets', href: '#markets' },
-    { name: 'Education', href: '#education' },
-    { name: 'Analysis', href: '#analysis' },
-    { name: 'Support', href: '#support' },
+  const navigation = [
+    { name: 'Home', href: '/', icon: Home },
+    { name: 'Binary Options', href: '/binary-options', icon: BarChart3 },
+    { name: 'Markets', href: '/markets', icon: DollarSign },
+    { name: 'Education', href: '/education', icon: BookOpen },
+    { name: 'About', href: '/about', icon: Info }
   ];
 
+  const authenticatedNavigation = [
+    { name: 'Dashboard', href: '/', icon: Home },
+    { name: 'Markets', href: '/markets', icon: DollarSign },
+    { name: 'Recent Trades', href: '/recent-trades', icon: Clock },
+    { name: 'Settings', href: '/settings', icon: Settings }
+  ];
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+  };
+
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
   return (
-    <nav className="bg-background/95 backdrop-blur border-b border-border sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-primary">QXBroker</h1>
-            </div>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Right side buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Current Time Display */}
-            <div className="text-xs text-muted-foreground hidden lg:block">
-              {currentTime}
+    <>
+      <nav className="bg-gray-900 border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-xl font-bold text-white">Quotex</span>
+              </Link>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">
-                  <Globe className="h-4 w-4 mr-2" />
-                  EN (US)
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>English (US)</DropdownMenuItem>
-                <DropdownMenuItem>English (UK)</DropdownMenuItem>
-                <DropdownMenuItem>Español</DropdownMenuItem>
-                <DropdownMenuItem>Français</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {!isAuthenticated ? (
-              <>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setIsAuthModalOpen(true)}
-                >
-                  Log In
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => setIsAuthModalOpen(true)}
-                >
-                  Sign Up
-                </Button>
-              </>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    {user?.name}
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              {isAuthenticated ? (
+                // Authenticated user navigation
+                <>
+                  {authenticatedNavigation.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          isActive(item.href)
+                            ? 'text-blue-400 bg-blue-900/20'
+                            : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </>
               ) : (
-                <Menu className="h-6 w-6" />
+                // Non-authenticated user navigation
+                <>
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          isActive(item.href)
+                            ? 'text-blue-400 bg-blue-900/20'
+                            : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </>
               )}
-            </Button>
+            </div>
+
+            {/* User Menu / Auth Buttons */}
+            <div className="hidden md:flex items-center space-x-4">
+              {isAuthenticated ? (
+                // Authenticated user menu
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className="text-sm text-white font-medium">{user?.name}</div>
+                    <div className="text-xs text-gray-400">Live Account</div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge className="bg-green-600 text-white">
+                      ${user?.liveBalance.toLocaleString()}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      className="text-gray-300 hover:text-white hover:bg-gray-800"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                // Non-authenticated user buttons
+                <Button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-300 hover:text-white"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-card border-t border-border">
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground block px-3 py-2 rounded-md text-base font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.name}
-              </a>
-            ))}
-            <div className="border-t border-border pt-4 pb-3">
-              <div className="flex items-center px-3 space-x-3">
-                <Button variant="ghost" className="w-full justify-start">
-                  <Globe className="h-4 w-4 mr-2" />
-                  Language
-                </Button>
-              </div>
-              <div className="mt-3 px-3 space-y-1">
-                {!isAuthenticated ? (
-                  <>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setIsAuthModalOpen(true);
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      Log In
-                    </Button>
-                    <Button 
-                      className="w-full bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        setIsAuthModalOpen(true);
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      Sign Up
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-sm font-medium px-3 py-2">
-                      Welcome, {user?.name}
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-gray-800 border-t border-gray-700">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {isAuthenticated ? (
+                // Authenticated mobile navigation
+                <>
+                  {authenticatedNavigation.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                          isActive(item.href)
+                            ? 'text-blue-400 bg-blue-900/20'
+                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                  <div className="pt-4 pb-3 border-t border-gray-700">
+                    <div className="px-3 py-2">
+                      <div className="text-sm text-white font-medium">{user?.name}</div>
+                      <div className="text-xs text-gray-400">Live Account</div>
+                      <div className="mt-2">
+                        <Badge className="bg-green-600 text-white">
+                          ${user?.liveBalance.toLocaleString()}
+                        </Badge>
+                      </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-destructive"
-                      onClick={() => {
-                        logout();
-                        setIsMobileMenuOpen(false);
-                      }}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-700"
+                      onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Logout
+                      Sign Out
                     </Button>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              ) : (
+                // Non-authenticated mobile navigation
+                <>
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                          isActive(item.href)
+                            ? 'text-blue-400 bg-blue-900/20'
+                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                  <div className="pt-4 pb-3 border-t border-gray-700">
+                    <Button
+                      onClick={() => {
+                        setIsAuthModalOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </nav>
 
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-      />
-    </nav>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+    </>
   );
 };
 

@@ -8,105 +8,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 217 19% 14%;
+    --background: 222 84% 8%; /* deep blue/gray */
     --foreground: 0 0% 98%;
-
-    --card: 217 19% 16%;
+    --card: 222 84% 12%;
     --card-foreground: 0 0% 98%;
-
-    --popover: 217 19% 16%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 142 76% 48%;
-    --primary-foreground: 217 19% 14%;
-
-    --secondary: 217 19% 18%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 217 19% 18%;
-    --muted-foreground: 217 6% 65%;
-
-    --accent: 38 92% 50%;
-    --accent-foreground: 217 19% 14%;
-
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 217 19% 22%;
-    --input: 217 19% 22%;
-    --ring: 142 76% 48%;
-
-    --trading-bull: 142 76% 48%;
+    --border: 222 84% 16%;
+    --input: 222 84% 16%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+    --sidebar-bg: 222 84% 6%;
+    --sidebar-active: 221.2 83.2% 53.3%;
+    --sidebar-icon: 0 0% 98%;
+    --sidebar-icon-active: 141 71% 48%;
+    --card-bg: 222 84% 12%;
+    --card-border: 222 84% 16%;
+    --green: 141 71% 48%;
+    --red: 0 84% 60%;
+    --blue: 221.2 83.2% 53.3%;
+    
+    /* Trading theme colors */
+    --trading-bg-dark: 222 84% 4%;
+    --trading-surface: 222 84% 8%;
+    --trading-surface-hover: 222 84% 10%;
+    --trading-bull: 141 71% 48%;
     --trading-bear: 0 84% 60%;
-    --trading-bg-dark: 217 19% 12%;
-    --trading-surface: 217 19% 16%;
-    --trading-surface-hover: 217 19% 20%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 217 19% 12%;
-    --foreground: 0 0% 98%;
-
-    --card: 217 19% 14%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 217 19% 14%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 142 76% 48%;
-    --primary-foreground: 217 19% 14%;
-
-    --secondary: 217 19% 16%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 217 19% 16%;
-    --muted-foreground: 217 6% 65%;
-
-    --accent: 38 92% 50%;
-    --accent-foreground: 217 19% 14%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 217 19% 20%;
-    --input: 217 19% 20%;
-    --ring: 142 76% 48%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))];
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+  }
+
+  * {
+    @apply border-border;
   }
 }
 
@@ -128,5 +74,80 @@ All colors MUST be HSL.
     100% {
       transform: translateX(-50%);
     }
+  }
+
+  /* QX Broker specific styles */
+  .gradient-text {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-soft {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-medium {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-strong {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .sidebar-bg {
+    background-color: hsl(var(--sidebar-bg));
+  }
+  .sidebar-active {
+    background-color: hsl(var(--sidebar-active));
+    color: hsl(var(--sidebar-icon-active));
+  }
+  .card-bg {
+    background-color: hsl(var(--card-bg));
+  }
+  .card-border {
+    border-color: hsl(var(--card-border));
+  }
+  .text-green {
+    color: hsl(var(--green));
+  }
+  .text-red {
+    color: hsl(var(--red));
+  }
+  .text-blue {
+    color: hsl(var(--blue));
+  }
+  .bg-green {
+    background-color: hsl(var(--green));
+  }
+  .bg-red {
+    background-color: hsl(var(--red));
+  }
+  .bg-blue {
+    background-color: hsl(var(--blue));
+  }
+  
+  /* Trading theme utilities */
+  .bg-trading-bg-dark {
+    background-color: hsl(var(--trading-bg-dark));
+  }
+  .bg-trading-surface {
+    background-color: hsl(var(--trading-surface));
+  }
+  .bg-trading-surface-hover {
+    background-color: hsl(var(--trading-surface-hover));
+  }
+  .bg-trading-bull {
+    background-color: hsl(var(--trading-bull));
+  }
+  .bg-trading-bear {
+    background-color: hsl(var(--trading-bear));
+  }
+  .text-trading-bull {
+    color: hsl(var(--trading-bull));
+  }
+  .text-trading-bear {
+    color: hsl(var(--trading-bear));
   }
 }

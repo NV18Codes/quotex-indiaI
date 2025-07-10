@@ -28,20 +28,22 @@ const MarketTicker = () => {
   }, []);
 
   return (
-    <div className="bg-trading-surface border-y border-border py-4 overflow-hidden">
+    <div className="bg-white border-y border-gray-200 py-4 overflow-hidden shadow-sm">
       <div className="flex animate-scroll">
-        <div className="flex space-x-8 min-w-max">
+        <div className="flex space-x-6 min-w-max">
           {assets.concat(assets).map((asset, index) => (
-            <div key={`${asset.id}-${index}`} className="flex items-center space-x-3 px-4">
-              <div className="text-sm font-medium">{asset.symbol}</div>
-              <div className="text-lg font-bold">
+            <div key={`${asset.id}-${index}`} className="flex items-center space-x-4 px-6 py-3 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-sm font-semibold text-gray-700">{asset.symbol}</div>
+              <div className="text-xl font-bold text-gray-900">
                 ${asset.price.toLocaleString(undefined, { 
                   minimumFractionDigits: 2, 
                   maximumFractionDigits: asset.symbol.includes('/') ? 4 : 2 
                 })}
               </div>
-              <div className={`flex items-center space-x-1 text-sm ${
-                asset.changePercent >= 0 ? 'text-trading-bull' : 'text-trading-bear'
+              <div className={`flex items-center space-x-1 text-sm font-bold px-2 py-1 rounded-full ${
+                asset.changePercent >= 0 
+                  ? 'text-green-700 bg-green-100' 
+                  : 'text-red-700 bg-red-100'
               }`}>
                 {asset.changePercent >= 0 ? (
                   <TrendingUp className="h-3 w-3" />

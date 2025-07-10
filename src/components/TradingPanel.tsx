@@ -1,288 +1,430 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { mockAssets, mockTrades, generateOrderBook, Asset, OrderBookEntry, Trade } from '@/data/mockData';
-import { TrendingUp, TrendingDown, Clock, DollarSign, AlertTriangle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Progress } from '@/components/ui/progress';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign, 
+  Clock, 
+  Target,
+  Timer,
+  Zap,
+  CheckCircle, 
+  XCircle,
+  AlertCircle,
+  Filter
+} from 'lucide-react';
+
+interface Trade {
+  id: string;
+  symbol: string;
+  type: 'buy' | 'sell';
+  amount: number;
+  duration: number;
+  result?: 'win' | 'loss';
+  profit?: number;
+  timestamp: Date;
+  status: 'pending' | 'completed';
+  timeLeft?: number;
+}
 
 const TradingPanel = () => {
-  const { user, currentBalance, isAuthenticated } = useAuth();
-  const [selectedAsset, setSelectedAsset] = useState<Asset>(mockAssets[0]);
-  const [investment, setInvestment] = useState(100);
-  const [orderBook, setOrderBook] = useState<{ bids: OrderBookEntry[], asks: OrderBookEntry[] }>({ bids: [], asks: [] });
-  const [recentTrades, setRecentTrades] = useState<Trade[]>(mockTrades);
-  const [assets, setAssets] = useState<Asset[]>(mockAssets);
+  const { user, updateBalance } = useAuth();
+  const [activeTrades, setActiveTrades] = useState<Trade[]>([]);
+  const [selectedSymbol, setSelectedSymbol] = useState('EUR/USD');
+  const [tradeAmount, setTradeAmount] = useState(100);
+  const [tradeDuration, setTradeDuration] = useState(60);
+  const [isTrading, setIsTrading] = useState(false);
+  const [tradeFilter, setTradeFilter] = useState<'all' | 'buy' | 'sell' | 'pending' | 'completed'>('all');
 
+  const symbols = [
+    { value: 'EUR/USD', label: 'EUR/USD', name: 'Euro / US Dollar' },
+    { value: 'GBP/USD', label: 'GBP/USD', name: 'British Pound / US Dollar' },
+    { value: 'USD/JPY', label: 'USD/JPY', name: 'US Dollar / Japanese Yen' },
+    { value: 'AUD/USD', label: 'AUD/USD', name: 'Australian Dollar / US Dollar' },
+    { value: 'USD/CAD', label: 'USD/CAD', name: 'US Dollar / Canadian Dollar' },
+    { value: 'EUR/GBP', label: 'EUR/GBP', name: 'Euro / British Pound' },
+    { value: 'USD/CHF', label: 'USD/CHF', name: 'US Dollar / Swiss Franc' },
+    { value: 'NZD/USD', label: 'NZD/USD', name: 'New Zealand Dollar / US Dollar' },
+    { value: 'BTC/USD', label: 'BTC/USD', name: 'Bitcoin / US Dollar' },
+    { value: 'ETH/USD', label: 'ETH/USD', name: 'Ethereum / US Dollar' },
+    { value: 'XAU/USD', label: 'XAU/USD', name: 'Gold / US Dollar' },
+    { value: 'XAG/USD', label: 'XAG/USD', name: 'Silver / US Dollar' }
+  ];
+
+  const durations = [
+    { value: 30, label: '30 Seconds' },
+    { value: 60, label: '1 Minute' },
+    { value: 120, label: '2 Minutes' },
+    { value: 300, label: '5 Minutes' },
+    { value: 600, label: '10 Minutes' }
+  ];
+
+  // Load existing trades from localStorage on component mount
   useEffect(() => {
-    setOrderBook(generateOrderBook(selectedAsset.price));
-  }, [selectedAsset]);
+    const savedTrades = localStorage.getItem('userTrades');
+    if (savedTrades) {
+      const parsedTrades = JSON.parse(savedTrades).map((trade: any) => ({
+        ...trade,
+        timestamp: new Date(trade.timestamp)
+      }));
+      setActiveTrades(parsedTrades);
+    } else {
+      // If no saved trades, initialize with the default trade history from AuthContext
+      const defaultTrades = user?.tradeHistory || [];
+      setActiveTrades(defaultTrades);
+      // Save the default trades to localStorage
+      localStorage.setItem('userTrades', JSON.stringify(defaultTrades));
+    }
+  }, [user]);
 
+  // Save trades to localStorage whenever trades change
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Update asset prices
-      setAssets(prev => 
-        prev.map(asset => {
-          const priceChange = (Math.random() - 0.5) * asset.price * 0.005;
-          const newPrice = Math.max(0, asset.price + priceChange);
-          const change = newPrice - asset.price;
-          const changePercent = (change / asset.price) * 100;
+    if (activeTrades.length > 0) {
+      localStorage.setItem('userTrades', JSON.stringify(activeTrades));
+    }
+  }, [activeTrades]);
 
-          return {
-            ...asset,
-            price: newPrice,
-            change,
-            changePercent
-          };
-        })
+  const handleTrade = (type: 'buy' | 'sell') => {
+    if (!user) return;
+
+    const newTrade: Trade = {
+      id: `trade_${Date.now()}`,
+      symbol: selectedSymbol,
+      type,
+      amount: tradeAmount,
+      duration: tradeDuration,
+      timestamp: new Date(),
+      status: 'pending',
+      timeLeft: tradeDuration
+    };
+
+    // Add new trade to the beginning of the existing trade history
+    setActiveTrades(prev => [newTrade, ...prev]);
+    setIsTrading(true);
+
+    // Simulate trade result after duration - ALWAYS WIN
+    setTimeout(() => {
+      const profit = tradeAmount * (0.7 + Math.random() * 0.6); // Always positive profit
+
+      setActiveTrades(prev => 
+        prev.map(trade => 
+          trade.id === newTrade.id
+            ? { ...trade, status: 'completed', result: 'win', profit, timeLeft: 0 }
+            : trade
+        )
       );
 
-      // Update selected asset
-      setSelectedAsset(prev => {
-        const priceChange = (Math.random() - 0.5) * prev.price * 0.005;
-        const newPrice = Math.max(0, prev.price + priceChange);
-        const change = newPrice - prev.price;
-        const changePercent = (change / prev.price) * 100;
-
-        return {
-          ...prev,
-          price: newPrice,
-          change,
-          changePercent
-        };
-      });
-
-      // Update order book
-      setOrderBook(prev => generateOrderBook(selectedAsset.price));
-
-      // Simulate new trades
-      if (Math.random() > 0.7) {
-        const newTrade: Trade = {
-          id: Date.now().toString(),
-          asset: selectedAsset.symbol,
-          type: Math.random() > 0.5 ? 'buy' : 'sell',
-          amount: Math.floor(Math.random() * 1000) + 10,
-          price: selectedAsset.price + (Math.random() - 0.5) * 10,
-          time: new Date().toLocaleTimeString(),
-          profit: (Math.random() - 0.3) * 200
-        };
-
-        setRecentTrades(prev => [newTrade, ...prev.slice(0, 9)]);
+      // Update balance
+      if (updateBalance) {
+        updateBalance(profit);
       }
-    }, 3000);
+      
+      setIsTrading(false);
+    }, tradeDuration * 1000);
+  };
+
+  // Update countdown for pending trades
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTrades(prev => 
+        prev.map(trade => {
+          if (trade.status === 'pending' && trade.timeLeft && trade.timeLeft > 0) {
+            const newTimeLeft = trade.timeLeft - 1;
+            
+            // If countdown reaches 0, complete the trade as a win
+            if (newTimeLeft === 0) {
+              const profit = trade.amount * (0.7 + Math.random() * 0.6); // Always positive profit
+              
+              // Update balance for completed trade
+              if (updateBalance) {
+                updateBalance(profit);
+              }
+              
+              return { 
+                ...trade, 
+                status: 'completed', 
+                result: 'win', 
+                profit, 
+                timeLeft: 0 
+              };
+            }
+            
+            return { ...trade, timeLeft: newTimeLeft };
+          }
+          return trade;
+        })
+      );
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [selectedAsset.price, selectedAsset.symbol]);
+  }, [updateBalance]);
 
-  const potentialProfit = Math.floor(investment * 0.98);
-
-  const formatPrice = (price: number) => {
-    return selectedAsset.symbol.includes('/') 
-      ? price.toFixed(4) 
-      : price.toFixed(2);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('en-US', { 
-      style: 'currency', 
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+  const getSelectedSymbolName = () => {
+    return symbols.find(s => s.value === selectedSymbol)?.name || selectedSymbol;
   };
 
-  const canTrade = () => {
-    if (!isAuthenticated) return false;
-    if (user?.accountType === 'demo') return true;
-    if (user?.accountType === 'live' && currentBalance > 0) return true;
-    return false;
-  };
+  const filteredTrades = activeTrades.filter(trade => {
+    switch (tradeFilter) {
+      case 'buy':
+        return trade.type === 'buy';
+      case 'sell':
+        return trade.type === 'sell';
+      case 'pending':
+        return trade.status === 'pending';
+      case 'completed':
+        return trade.status === 'completed';
+      default:
+        return true;
+    }
+  });
 
   return (
-    <section className="bg-background py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold">Advanced Trading Panel</h2>
-          <p className="text-muted-foreground mt-2">Complete trading interface with real-time data</p>
-          {isAuthenticated && user && (
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <Badge variant={user.accountType === 'demo' ? 'secondary' : 'default'}>
-                {user.accountType.toUpperCase()} Account
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                Balance: {formatCurrency(currentBalance)}
-              </span>
+    <div className="space-y-6">
+      {/* Account Balance */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white">Account Balance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-sm text-gray-400">Demo Account</div>
+              <div className="text-lg font-semibold text-white">
+                ${user?.demoBalance.toLocaleString()}
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="grid lg:grid-cols-4 gap-6">
-          {/* Asset Selection */}
-          <div className="bg-card rounded-xl border border-border p-6">
-            <h3 className="font-semibold mb-4">Assets</h3>
-            <div className="space-y-2">
-              {assets.map((asset) => (
-                <button
-                  key={asset.id}
-                  onClick={() => setSelectedAsset(asset)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    selectedAsset.id === asset.id 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-trading-surface hover:bg-trading-surface-hover'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="font-medium text-sm">{asset.symbol}</div>
-                      <div className="text-xs opacity-70">{asset.name}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold">
-                        ${formatPrice(asset.price)}
-                      </div>
-                      <div className={`text-xs ${asset.changePercent >= 0 ? 'text-trading-bull' : 'text-trading-bear'}`}>
-                        {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Trading Interface */}
-          <div className="bg-card rounded-xl border border-border p-6">
-            <h3 className="font-semibold mb-4">Trade {selectedAsset.symbol}</h3>
-            
-            <div className="space-y-4">
-              <div className="bg-trading-surface rounded-lg p-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">
-                    ${formatPrice(selectedAsset.price)}
-                  </div>
-                  <div className={`text-sm ${selectedAsset.changePercent >= 0 ? 'text-trading-bull' : 'text-trading-bear'}`}>
-                    {selectedAsset.changePercent >= 0 ? '+' : ''}{selectedAsset.changePercent.toFixed(2)}%
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm text-muted-foreground">Investment Amount</label>
-                <Input
-                  type="number"
-                  value={investment}
-                  onChange={(e) => setInvestment(Number(e.target.value))}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Potential Profit</span>
-                <span className="text-primary font-semibold">{formatCurrency(potentialProfit)} (98%)</span>
-              </div>
-
-              {!canTrade() && (
-                <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm p-3 rounded-md flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  {!isAuthenticated 
-                    ? 'Please log in to start trading' 
-                    : 'Insufficient balance or account not accessible'
-                  }
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <Button 
-                  className="bg-trading-bull hover:bg-trading-bull/90 h-12"
-                  disabled={!canTrade()}
-                >
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  CALL
-                </Button>
-                <Button 
-                  className="bg-trading-bear hover:bg-trading-bear/90 h-12"
-                  disabled={!canTrade()}
-                >
-                  <TrendingDown className="h-4 w-4 mr-2" />
-                  PUT
-                </Button>
-              </div>
-
-              <div className="text-xs text-muted-foreground text-center">
-                <Clock className="h-3 w-3 inline mr-1" />
-                Expires in: 15:00
+            <div>
+              <div className="text-sm text-gray-400">Live Account</div>
+              <div className="text-lg font-semibold text-green-400">
+                ${user?.liveBalance.toLocaleString()}
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Order Book */}
-          <div className="bg-card rounded-xl border border-border p-6">
-            <h3 className="font-semibold mb-4">Order Book</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <div className="text-xs text-muted-foreground mb-2">ASKS</div>
-                <div className="space-y-1">
-                  {orderBook.asks.slice(0, 5).map((ask, index) => (
-                    <div key={index} className="flex justify-between text-xs">
-                      <span className="text-trading-bear">${formatPrice(ask.price)}</span>
-                      <span className="text-muted-foreground">{ask.volume.toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-border pt-2">
-                <div className="text-xs text-muted-foreground mb-2">BIDS</div>
-                <div className="space-y-1">
-                  {orderBook.bids.slice(0, 5).map((bid, index) => (
-                    <div key={index} className="flex justify-between text-xs">
-                      <span className="text-trading-bull">${formatPrice(bid.price)}</span>
-                      <span className="text-muted-foreground">{bid.volume.toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+      {/* Place Trade */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white">Place Trade</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Symbol Selection */}
+          <div>
+            <Label htmlFor="symbol" className="text-gray-300">Trading Symbol</Label>
+            <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
+              <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 border-gray-600">
+                {symbols.map((symbol) => (
+                  <SelectItem key={symbol.value} value={symbol.value} className="text-white hover:bg-gray-600">
+                    {symbol.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="text-sm text-gray-400 mt-1">{getSelectedSymbolName()}</div>
           </div>
 
-          {/* Recent Trades */}
-          <div className="bg-card rounded-xl border border-border p-6">
-            <h3 className="font-semibold mb-4">Recent Trades</h3>
-            
-            <div className="space-y-2">
-              {recentTrades.map((trade) => (
-                <div key={trade.id} className="bg-trading-surface rounded-lg p-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm font-medium">{trade.asset}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(trade.time).toLocaleString('en-US')}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-sm font-medium ${trade.type === 'buy' ? 'text-trading-bull' : 'text-trading-bear'}`}>
+          {/* Investment Amount */}
+          <div>
+            <Label htmlFor="amount" className="text-gray-300">Investment Amount ($)</Label>
+            <Input
+              id="amount"
+              type="number"
+              value={tradeAmount}
+              onChange={(e) => setTradeAmount(Number(e.target.value))}
+              min="10"
+              max="10000"
+              className="bg-gray-700 border-gray-600 text-white"
+            />
+          </div>
+
+          {/* Duration Selection */}
+          <div>
+            <Label htmlFor="duration" className="text-gray-300">Trade Duration</Label>
+            <Select value={tradeDuration.toString()} onValueChange={(value) => setTradeDuration(Number(value))}>
+              <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 border-gray-600">
+                {durations.map((duration) => (
+                  <SelectItem key={duration.value} value={duration.value.toString()} className="text-white hover:bg-gray-600">
+                    {duration.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Trade Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => handleTrade('buy')}
+              disabled={isTrading}
+              className="bg-green-600 text-white hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              BUY
+            </Button>
+            <Button
+              onClick={() => handleTrade('sell')}
+              disabled={isTrading}
+              className="bg-red-600 text-white hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed"
+            >
+              <TrendingDown className="h-4 w-4 mr-2" />
+              SELL
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Trade History */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Trade History
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+              <select
+                value={tradeFilter}
+                onChange={(e) => setTradeFilter(e.target.value as any)}
+                className="bg-gray-700 border-gray-600 text-white text-sm rounded px-2 py-1"
+              >
+                <option value="all">All Trades</option>
+                <option value="buy">Buy Trades</option>
+                <option value="sell">Sell Trades</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {filteredTrades.length > 0 ? (
+              filteredTrades.slice(0, 10).map((trade) => (
+                <div key={trade.id} className="p-4 border border-gray-600 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="font-semibold text-white">{trade.symbol}</div>
+                      <Badge className={trade.type === 'buy' ? 'bg-green-600' : 'bg-red-600'}>
                         {trade.type.toUpperCase()}
-                      </div>
-                      <div className="text-xs">{formatCurrency(trade.amount)}</div>
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      ${trade.amount}
                     </div>
                   </div>
-                  
-                  {trade.profit !== undefined && (
-                    <div className="mt-2 pt-2 border-t border-border/50">
-                      <div className={`text-xs flex items-center ${trade.profit >= 0 ? 'text-trading-bull' : 'text-trading-bear'}`}>
-                        <DollarSign className="h-3 w-3 mr-1" />
-                        {trade.profit >= 0 ? '+' : ''}{formatCurrency(trade.profit)}
+
+                  {trade.status === 'pending' ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Time Remaining:</span>
+                        <span className="text-yellow-400 font-mono">
+                          {trade.timeLeft ? formatTime(trade.timeLeft) : '00:00'}
+                        </span>
+                      </div>
+                      <Progress 
+                        value={trade.timeLeft ? ((trade.timeLeft / trade.duration) * 100) : 0} 
+                        className="h-2"
+                      />
+                      <div className="flex items-center space-x-2 text-yellow-400">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm">Processing...</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className={`flex items-center space-x-2 ${
+                        trade.result === 'win' ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {trade.result === 'win' ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <XCircle className="h-4 w-4" />
+                        )}
+                        <span className="font-semibold">
+                          {trade.result?.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className={`font-semibold ${
+                        trade.profit && trade.profit >= 0 ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        ${trade.profit?.toFixed(2)}
                       </div>
                     </div>
                   )}
                 </div>
-              ))}
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-400 text-lg mb-2">No trades yet</div>
+                <p className="text-gray-500 text-sm">Start trading to see your history here</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Stats */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white">Trading Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-sm text-gray-400">Total Trades</div>
+              <div className="text-lg font-semibold text-white">
+                {activeTrades.length}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-400">Win Rate</div>
+              <div className="text-lg font-semibold text-green-400">
+                {activeTrades.filter(t => t.status === 'completed' && t.result === 'win').length > 0 
+                  ? Math.round((activeTrades.filter(t => t.status === 'completed' && t.result === 'win').length / 
+                     activeTrades.filter(t => t.status === 'completed').length) * 100)
+                  : 0}%
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-400">Total P&L</div>
+              <div className="text-lg font-semibold text-green-400">
+                ${activeTrades
+                  .filter(t => t.status === 'completed' && t.profit)
+                  .reduce((sum, trade) => sum + (trade.profit || 0), 0)
+                  .toFixed(2)}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-400">Active Trades</div>
+              <div className="text-lg font-semibold text-blue-400">
+                {activeTrades.filter(t => t.status === 'pending').length}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
