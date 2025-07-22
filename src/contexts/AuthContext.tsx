@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (email === 'samuelkjoseph2020@gmail.com' && password === 'Samuel2025!') {
       authenticatedUser = samuelUser;
-    } else if (email === 'jonathanjeremiah@example.com' && password === 'godfather23JGJJJ$!') {
+    } else if (email === 'johathan23j@gmail.com' && password === 'godfather23JGJJJ$!') {
       authenticatedUser = jonathanUser;
     }
 
