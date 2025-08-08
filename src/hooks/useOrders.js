@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { mockOrders } from '../data/mockData';
-import { generateOrderId } from '../utils/validation';
+import { generateOrderId, manageStorageQuota } from '../utils/validation';
 
 export const useOrders = (userId) => {
   const [orders, setOrders] = useState([]);
@@ -8,14 +8,28 @@ export const useOrders = (userId) => {
 
   // Load orders from localStorage on mount
   useEffect(() => {
-    const savedOrders = localStorage.getItem('adscreenhub_orders');
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders));
-    } else {
-      // Initialize with mock orders for the user
-      const userOrders = mockOrders.filter(order => order.userId === userId);
-      setOrders(userOrders);
-      localStorage.setItem('adscreenhub_orders', JSON.stringify(userOrders));
+    try {
+      const savedOrders = localStorage.getItem('adscreenhub_orders');
+      if (savedOrders) {
+        setOrders(JSON.parse(savedOrders));
+      } else {
+        // Initialize with mock orders for the user
+        const userOrders = mockOrders.filter(order => order.userId === userId);
+        setOrders(userOrders);
+        
+        try {
+          localStorage.setItem('adscreenhub_orders', JSON.stringify(userOrders));
+        } catch (error) {
+          if (error.name === 'QuotaExceededError') {
+            manageStorageQuota();
+            localStorage.setItem('adscreenhub_orders', JSON.stringify(userOrders));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      // Fallback to empty orders
+      setOrders([]);
     }
     setLoading(false);
   }, [userId]);
@@ -32,7 +46,24 @@ export const useOrders = (userId) => {
 
     const updatedOrders = [...orders, newOrder];
     setOrders(updatedOrders);
-    localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+    
+    try {
+      // Check storage quota before saving
+      if (!manageStorageQuota()) {
+        throw new Error('Storage quota exceeded');
+      }
+      
+      localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+    } catch (error) {
+      if (error.name === 'QuotaExceededError' || error.message === 'Storage quota exceeded') {
+        // Clean up and try again
+        manageStorageQuota();
+        localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+      } else {
+        console.error('Error saving order:', error);
+        return { success: false, error: 'Failed to save order' };
+      }
+    }
 
     return { success: true, order: newOrder };
   };
@@ -44,7 +75,15 @@ export const useOrders = (userId) => {
     );
     
     setOrders(updatedOrders);
-    localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+    
+    try {
+      localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        manageStorageQuota();
+        localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+      }
+    }
 
     return { success: true };
   };
@@ -66,7 +105,15 @@ export const useOrders = (userId) => {
     );
     
     setOrders(updatedOrders);
-    localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+    
+    try {
+      localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        manageStorageQuota();
+        localStorage.setItem('adscreenhub_orders', JSON.stringify(updatedOrders));
+      }
+    }
 
     return { success: true };
   };

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useOrders } from '../hooks/useOrders';
 import { mockScreens, mockPlans } from '../data/mockData';
-import { isDateDisabled, validateFile, generateOrderId } from '../utils/validation';
+import { isDateDisabled, validateFile, generateOrderId, compressImage, manageStorageQuota } from '../utils/validation';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/Dashboard.module.css';
+import StorageManager from '../components/StorageManager';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [newOrder, setNewOrder] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState(false);
+  const [showStorageManager, setShowStorageManager] = useState(false);
 
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
@@ -50,7 +52,7 @@ export default function Dashboard() {
     }
   }, []);
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -67,15 +69,33 @@ export default function Dashboard() {
     setUploadError('');
     setDesignFile(file);
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const preview = e.target.result;
-      setDesignPreview(preview);
-      // Save to localStorage
-      localStorage.setItem('adscreenhub_design', preview);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Check storage quota before processing
+      if (!manageStorageQuota()) {
+        setUploadError('Storage space is full. Please clear some data and try again.');
+        return;
+      }
+
+      // Compress image for storage
+      const compressedPreview = await compressImage(file, 800, 0.7);
+      setDesignPreview(compressedPreview);
+      
+      // Save compressed preview to localStorage
+      try {
+        localStorage.setItem('adscreenhub_design', compressedPreview);
+      } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+          // Clean up and try again
+          manageStorageQuota();
+          localStorage.setItem('adscreenhub_design', compressedPreview);
+        } else {
+          throw error;
+        }
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      setUploadError('Error processing image. Please try again.');
+    }
   };
 
   const handleBooking = () => {
@@ -142,8 +162,22 @@ export default function Dashboard() {
     <div className={styles.dashboard}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>Welcome back, {user?.fullName}!</h1>
-          <p>Book your LED screen advertising campaign</p>
+          <div className={styles.headerContent}>
+            <div>
+              <h1>Welcome back, {user?.fullName}!</h1>
+              <p>Book your LED screen advertising campaign</p>
+            </div>
+            <button 
+              className={styles.storageBtn}
+              onClick={() => setShowStorageManager(true)}
+              title="Manage Storage"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+              </svg>
+              Storage
+            </button>
+          </div>
         </div>
 
         <div className={styles.bookingSection}>
@@ -189,11 +223,16 @@ export default function Dashboard() {
                           <div className={styles.bookedBadge}>
                             <span>Booked for {selectedDate}</span>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                                )}
+
+        {/* Storage Manager Modal */}
+        {showStorageManager && (
+          <StorageManager onClose={() => setShowStorageManager(false)} />
+        )}
+      </div>
+    </div>
+  );
+})}
               </div>
             </div>
           )}
@@ -482,6 +521,11 @@ export default function Dashboard() {
                </div>
             </div>
           </div>
+        )}
+
+        {/* Storage Manager Modal */}
+        {showStorageManager && (
+          <StorageManager onClose={() => setShowStorageManager(false)} />
         )}
       </div>
     </div>

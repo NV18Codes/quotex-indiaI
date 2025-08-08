@@ -74,3 +74,81 @@ export const isDateDisabled = (date) => {
   const checkDate = new Date(date);
   return checkDate <= tomorrow;
 };
+
+// Compress and resize image for storage
+export const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+      const newWidth = img.width * ratio;
+      const newHeight = img.height * ratio;
+      
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      resolve(compressedDataUrl);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+// Check localStorage quota and clean if needed
+export const manageStorageQuota = () => {
+  try {
+    // Test if we can write to localStorage
+    const testKey = 'storage_test';
+    const testValue = 'test';
+    localStorage.setItem(testKey, testValue);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (error) {
+    if (error.name === 'QuotaExceededError') {
+      // Clean up old data
+      cleanupOldData();
+      return true;
+    }
+    return false;
+  }
+};
+
+// Clean up old data to free space
+const cleanupOldData = () => {
+  try {
+    // Remove old design previews (keep only the latest)
+    const designKey = 'adscreenhub_design';
+    if (localStorage.getItem(designKey)) {
+      localStorage.removeItem(designKey);
+    }
+    
+    // Keep only last 10 orders
+    const ordersKey = 'adscreenhub_orders';
+    const ordersData = localStorage.getItem(ordersKey);
+    if (ordersData) {
+      const orders = JSON.parse(ordersData);
+      if (orders.length > 10) {
+        const recentOrders = orders.slice(-10);
+        localStorage.setItem(ordersKey, JSON.stringify(recentOrders));
+      }
+    }
+    
+    // Clear any other large data
+    const keysToClean = ['adscreenhub_temp', 'adscreenhub_cache'];
+    keysToClean.forEach(key => {
+      if (localStorage.getItem(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch (error) {
+    console.warn('Storage cleanup failed:', error);
+  }
+};

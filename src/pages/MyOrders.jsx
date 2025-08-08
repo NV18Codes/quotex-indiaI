@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useOrders } from '../hooks/useOrders';
-import { formatDate, formatCurrency, validateFile } from '../utils/validation';
+import { formatDate, formatCurrency, validateFile, compressImage, manageStorageQuota } from '../utils/validation';
 import styles from '../styles/MyOrders.module.css';
 
 export default function MyOrders() {
@@ -29,7 +29,7 @@ export default function MyOrders() {
     setUploadError('');
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -46,13 +46,20 @@ export default function MyOrders() {
     setUploadError('');
     setNewDesignFile(file);
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const preview = e.target.result;
-      setNewDesignPreview(preview);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Check storage quota before processing
+      if (!manageStorageQuota()) {
+        setUploadError('Storage space is full. Please clear some data and try again.');
+        return;
+      }
+
+      // Compress image for storage
+      const compressedPreview = await compressImage(file, 800, 0.7);
+      setNewDesignPreview(compressedPreview);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      setUploadError('Error processing image. Please try again.');
+    }
   };
 
   const handleSubmitRevision = () => {
