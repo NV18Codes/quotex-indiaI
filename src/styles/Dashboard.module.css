@@ -1,0 +1,938 @@
+.dashboard {
+  min-height: 100vh;
+  background-color: var(--gray-100);
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  color: var(--text-dark);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: var(--text-light);
+  font-size: 1.125rem;
+}
+
+.bookingSection {
+  background-color: var(--white);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.dateSection {
+  margin-bottom: 2rem;
+}
+
+.dateSection h2 {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.dateInputWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.calendarIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary-color);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dateInput {
+  width: 100%;
+  max-width: 300px;
+  padding: 1rem 1.25rem 1rem 3rem;
+  border: 2px solid var(--gray-300);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.dateInput:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 15px rgba(19, 25, 179, 0.1);
+  transform: translateY(-1px);
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(19, 25, 179, 0.1), 0 4px 15px rgba(19, 25, 179, 0.15);
+  background: #ffffff;
+}
+
+.dateNote {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.screensSection h2 {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.screensGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.screenCard {
+  background-color: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.screenCard:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.screenCard.booked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.screenCard.booked:hover {
+  transform: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bookedBadge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #dc2626;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.screenImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.screenInfo {
+  padding: 1.5rem;
+}
+
+.screenInfo h3 {
+  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.screenLocation {
+  color: var(--primary-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.screenSize,
+.screenPixels {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.screenPrice {
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-top: 0.5rem;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background-color: var(--white);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.modalClose:hover {
+  background-color: var(--gray-200);
+}
+
+.modalHeader {
+  margin-bottom: 2rem;
+}
+
+.modalHeader h2 {
+  color: var(--text-dark);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.modalHeader p {
+  color: var(--text-light);
+}
+
+.screenDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
+
+.screenDetails img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.detailsGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.detailItem {
+  padding: 0.75rem;
+  background-color: var(--gray-100);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detailItem strong {
+  color: var(--text-dark);
+  margin-right: 0.5rem;
+}
+
+.plansSection {
+  margin-bottom: 2rem;
+}
+
+.plansSection h3 {
+  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.planCard {
+  border: 2px solid var(--gray-200);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.planCard:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.planCard.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(19, 25, 179, 0.05);
+}
+
+.planCard h4 {
+  color: var(--text-dark);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.planPrice {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.planDuration {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.planFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.planFeatures li {
+  color: var(--text-light);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.planFeatures li::before {
+  content: '•';
+  color: var(--primary-color);
+  position: absolute;
+  left: 0;
+}
+
+.bookingSummary {
+  border-top: 2px solid var(--gray-200);
+  padding-top: 2rem;
+}
+
+.bookingSummary h3 {
+  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.summaryItem:last-of-type {
+  border-bottom: none;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btnPrimary {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.btnPrimary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(19, 25, 179, 0.3);
+}
+
+/* File Upload Styles */
+.fileInput {
+  display: none;
+}
+
+.fileInputLabel {
+  cursor: pointer;
+  display: block;
+}
+
+.uploadArea {
+  border: 2px dashed var(--gray-300);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  background-color: var(--gray-100);
+}
+
+.uploadArea:hover {
+  border-color: var(--primary-color);
+  background-color: var(--gray-200);
+}
+
+.uploadIcon {
+  width: 3rem;
+  height: 3rem;
+  color: var(--gray-500);
+  margin: 0 auto 1rem;
+}
+
+.fileTypes {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.errorMessage {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--danger);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.previewSection {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.previewSection h3 {
+  color: var(--text-dark);
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.fileInfo {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.uploadSection {
+  margin-bottom: 1.5rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem 0;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+  
+  .bookingSection {
+    padding: 1.5rem;
+  }
+
+  .dateSection h2 {
+    font-size: 1.25rem;
+  }
+
+  .screensSection h2 {
+    font-size: 1.25rem;
+  }
+  
+  .screensGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .screenCard {
+    margin-bottom: 0;
+  }
+
+  .screenInfo {
+    padding: 1rem;
+  }
+
+  .screenInfo h3 {
+    font-size: 1.125rem;
+  }
+  
+  .modalContent {
+    margin: 0.5rem;
+    padding: 1.5rem;
+    max-height: 95vh;
+  }
+  
+  .screenDetails {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .screenDetails img {
+    height: 200px;
+  }
+  
+  .plansGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .planCard {
+    padding: 1rem;
+  }
+
+  .planCard h4 {
+    font-size: 1rem;
+  }
+
+  .planPrice {
+    font-size: 1.25rem;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .uploadArea {
+    padding: 1.5rem;
+  }
+
+  .uploadIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .confirmationActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+    .confirmationActions .btn {
+    min-width: 120px;
+  }
+  
+  .bookedBadge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+/* Warning Modal Styles */
+.warningHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.warningHeader h2 {
+  color: #dc2626;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.warningHeader p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.warningContent {
+  margin-bottom: 2rem;
+}
+
+.warningSection {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  border-left: 4px solid #dc2626;
+}
+
+.warningSection h3 {
+  color: #dc2626;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.warningSection p {
+  color: #dc2626;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.warningActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.warningActions .btn {
+  min-width: 120px;
+}
+
+/* Mobile Responsive for Warning Modal */
+@media (max-width: 768px) {
+  .warningHeader h2 {
+    font-size: 1.25rem;
+  }
+  
+  .warningContent {
+    margin-bottom: 1.5rem;
+  }
+  
+  .warningSection {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .warningSection h3 {
+    font-size: 1rem;
+  }
+  
+  .warningSection p {
+    font-size: 0.85rem;
+  }
+  
+  .warningActions {
+    flex-direction: column;
+  }
+  
+  .warningActions .btn {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .warningHeader h2 {
+    font-size: 1.125rem;
+  }
+  
+  .warningSection {
+    padding: 0.5rem;
+  }
+  
+  .warningSection h3 {
+    font-size: 0.95rem;
+  }
+  
+  .warningSection p {
+    font-size: 0.8rem;
+  }
+}
+
+  .orderInfo {
+    gap: 0.5rem;
+  }
+
+  .orderItem {
+    padding: 0.4rem 0;
+    font-size: 0.875rem;
+  }
+
+  .orderId {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0.75rem 0;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+  }
+
+  .header p {
+    font-size: 0.875rem;
+  }
+
+  .bookingSection {
+    padding: 1rem;
+  }
+
+  .dateSection h2 {
+    font-size: 1.125rem;
+  }
+
+  .screensSection h2 {
+    font-size: 1.125rem;
+  }
+
+  .screenInfo {
+    padding: 0.75rem;
+  }
+
+  .screenInfo h3 {
+    font-size: 1rem;
+  }
+
+  .modalContent {
+    margin: 0.25rem;
+    padding: 1rem;
+  }
+
+  .modalHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .planCard {
+    padding: 0.75rem;
+  }
+
+  .planFeatures li {
+    font-size: 0.7rem;
+  }
+
+  .uploadArea {
+    padding: 1rem;
+  }
+
+  .uploadIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .successIcon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .successIcon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .confirmationHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .orderDetails {
+    padding: 1rem;
+  }
+
+  .orderDetails h3 {
+    font-size: 1.125rem;
+  }
+
+  .orderItem {
+    font-size: 0.8rem;
+  }
+
+  .orderId {
+    font-size: 0.8rem;
+  }
+
+  .orderAmount {
+    font-size: 1rem;
+  }
+  
+  .bookedBadge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+  }
+}
+
+/* Confirmation Modal Styles */
+.confirmationHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.successIcon {
+  width: 4rem;
+  height: 4rem;
+  background-color: var(--success);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.successIcon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.confirmationHeader h2 {
+  color: var(--success);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.confirmationHeader p {
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.orderDetails {
+  background-color: var(--gray-100);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.orderDetails h3 {
+  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.orderInfo {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.orderItem:last-of-type {
+  border-bottom: none;
+}
+
+.orderItem span:first-child {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.orderId {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.orderAmount {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.statusPending {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.designPreview {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.designPreview h4 {
+  color: var(--text-dark);
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.confirmationActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.confirmationActions .btn {
+  width: auto;
+  min-width: 150px;
+}

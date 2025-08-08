@@ -1,0 +1,25 @@
+.profile {
+  min-height: 100vh;
+  background-color: var(--gray-100);
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.container h1 {
+  color: var(--text-dark);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.container p {
+  color: var(--text-light);
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
