@@ -1,4 +1,12 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function Hero() {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/signup');
+  };
+
   return (
     <section className="pt-20 min-h-screen flex items-center justify-center bg-gray-900 relative overflow-hidden">
       {/* Background Image */}
@@ -23,7 +31,10 @@ export default function Hero() {
           Starting at just <span className="font-bold">₹7/ad</span>, Go <span className="font-bold text-yellow-300">BIG</span> with LED billboard advertising!
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-colors shadow-lg">
+          <button 
+            onClick={handleGetStarted}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-colors shadow-lg"
+          >
             Get Started
           </button>
           <button className="border-2 border-white text-white hover:bg-white hover:text-blue-900 px-8 py-4 rounded-full font-semibold text-lg transition-colors">
