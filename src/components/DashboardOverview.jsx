@@ -8,12 +8,14 @@ export default function DashboardOverview() {
   const { user } = useAuth();
   const { orders } = useOrders(user?.id);
 
-  // Calculate stats
+  // Calculate stats - exclude cancelled orders from total spent
   const totalOrders = orders.length;
   const pendingOrders = orders.filter(order => order.status === 'Pending Approval').length;
   const activeOrders = orders.filter(order => order.status === 'In Display').length;
   const completedOrders = orders.filter(order => order.status === 'Completed Display').length;
-  const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+  const totalSpent = orders
+    .filter(order => order.status !== 'Cancelled Display')
+    .reduce((sum, order) => sum + order.totalAmount, 0);
 
   // Get recent orders (last 3)
   const recentOrders = orders.slice(0, 3);

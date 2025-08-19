@@ -22,8 +22,10 @@ export const validatePassword = (password) => {
 
 // Mobile number validation (India format)
 export const validateMobile = (mobile) => {
-  const mobileRegex = /^\+91\s[6-9]\d{9}$/;
-  return mobileRegex.test(mobile);
+  // Remove all spaces and validate format +91XXXXXXXXXX (13 characters total)
+  const cleanMobile = mobile.replace(/\s/g, '');
+  const mobileRegex = /^\+91[6-9]\d{9}$/;
+  return mobileRegex.test(cleanMobile);
 };
 
 // File validation

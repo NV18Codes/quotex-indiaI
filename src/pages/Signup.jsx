@@ -11,7 +11,7 @@ export default function Signup() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    mobile: '',
+    mobile: '+91',
     password: '',
     confirmPassword: '',
     terms: false
@@ -19,12 +19,30 @@ export default function Signup() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [otp, setOtp] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    let processedValue = value;
+    
+    // Handle mobile number formatting
+    if (name === 'mobile') {
+      // Remove all spaces and ensure it starts with +91
+      processedValue = value.replace(/\s/g, '');
+      if (!processedValue.startsWith('+91')) {
+        processedValue = '+91' + processedValue.replace('+91', '');
+      }
+      // Limit to +91 + 10 digits
+      if (processedValue.length > 13) {
+        processedValue = processedValue.substring(0, 13);
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : processedValue
     }));
     
     // Clear error when user starts typing
@@ -59,7 +77,7 @@ export default function Signup() {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (!formData.mobile) {
+    if (!formData.mobile || formData.mobile === '+91') {
       newErrors.mobile = 'Mobile number is required';
     } else if (!validateMobile(formData.mobile)) {
       newErrors.mobile = 'Please enter a valid Indian mobile number (+91 format)';
@@ -212,7 +230,7 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className={styles.authForm}>
           <div className={styles.formGroup}>
             <label htmlFor="fullName" className={styles.formLabel}>
-              Full Name
+              Full Name <span style={{ color: 'red' }}>*</span>
             </label>
             <input
               type="text"
@@ -228,7 +246,7 @@ export default function Signup() {
 
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.formLabel}>
-              Email Address
+              Email Address <span style={{ color: 'red' }}>*</span>
             </label>
             <input
               type="email"
@@ -244,7 +262,7 @@ export default function Signup() {
 
           <div className={styles.formGroup}>
             <label htmlFor="mobile" className={styles.formLabel}>
-              Mobile Number
+              Mobile Number <span style={{ color: 'red' }}>*</span>
             </label>
             <input
               type="tel"
@@ -256,21 +274,43 @@ export default function Signup() {
               placeholder="+91 9876543210"
             />
             {errors.mobile && <span className={styles.formError}>{errors.mobile}</span>}
+            <small style={{ color: 'var(--text-light)', fontSize: '0.75rem' }}>
+              Only Indian numbers (+91) are supported
+            </small>
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.formLabel}>
-              Password
+              Password <span style={{ color: 'red' }}>*</span>
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`${styles.formInput} ${errors.password ? styles.error : ''}`}
-              placeholder="Create a strong password"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={`${styles.formInput} ${errors.password ? styles.error : ''}`}
+                placeholder="Create a strong password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
             {errors.password && <span className={styles.formError}>{errors.password}</span>}
             {formData.password && (
               <div className={styles.passwordStrength}>
@@ -282,17 +322,36 @@ export default function Signup() {
 
           <div className={styles.formGroup}>
             <label htmlFor="confirmPassword" className={styles.formLabel}>
-              Confirm Password
+              Confirm Password <span style={{ color: 'red' }}>*</span>
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`${styles.formInput} ${errors.confirmPassword ? styles.error : ''}`}
-              placeholder="Confirm your password"
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`${styles.formInput} ${errors.confirmPassword ? styles.error : ''}`}
+                placeholder="Confirm your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showConfirmPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
             {errors.confirmPassword && <span className={styles.formError}>{errors.confirmPassword}</span>}
           </div>
 

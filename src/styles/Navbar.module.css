@@ -31,6 +31,12 @@
   color: var(--text-dark);
 }
 
+.logoImage {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
 .logoIcon {
   background-color: var(--primary-color);
   color: var(--white);
@@ -58,6 +64,12 @@
   color: var(--text-dark);
   font-weight: 500;
   transition: color 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
 }
 
 .navLink:hover {
@@ -68,6 +80,12 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.loadingText {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  font-style: italic;
 }
 
 .btn {
@@ -272,8 +290,17 @@
     z-index: 1001;
   }
 
+  .logoImage {
+    height: 28px;
+  }
+
   .logoText {
-    font-size: 1.125rem;
+    font-size: 1rem;
+  }
+
+  .logoIcon {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
   }
 }
 

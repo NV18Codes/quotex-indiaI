@@ -87,6 +87,19 @@
   margin-bottom: 0.25rem;
 }
 
+.orderLocation,
+.orderScreen {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.orderLocation strong,
+.orderScreen strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
 .orderStatus {
   padding: 0.5rem 1rem;
   border-radius: 2rem;
@@ -123,40 +136,89 @@
 
 .orderDetails {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .orderAmount {
   color: var(--text-dark);
   font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .orderThumbnail {
   text-align: center;
+  padding: 1rem;
+  background-color: var(--gray-50);
+  border-radius: 0.75rem;
+  border: 1px solid var(--gray-200);
 }
 
-.orderThumbnail img {
-  width: 100px;
-  height: 60px;
+.orderThumbnail h4 {
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.thumbnailImage {
+  width: 120px;
+  height: 80px;
   object-fit: cover;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: transform 0.3s ease;
+  border: 2px solid var(--gray-300);
 }
 
-.orderThumbnail img:hover {
+.thumbnailImage:hover {
   transform: scale(1.1);
+  border-color: var(--primary-color);
 }
 
 .orderThumbnail small {
   display: block;
   color: var(--text-light);
   font-size: 0.75rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.adminProof {
+  text-align: center;
+  padding: 1rem;
+  background-color: #f0f9ff;
+  border-radius: 0.75rem;
+  border: 1px solid #bae6fd;
+}
+
+.adminProof h4 {
+  color: #0369a1;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.proofImage {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  border: 2px solid #bae6fd;
+}
+
+.proofImage:hover {
+  transform: scale(1.1);
+  border-color: #0369a1;
+}
+
+.adminProof small {
+  display: block;
+  color: #0369a1;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .orderActions {
@@ -422,9 +484,18 @@
     font-size: 0.875rem;
   }
 
-  .orderThumbnail img {
-    width: 80px;
-    height: 60px;
+  .orderThumbnail {
+    padding: 0.75rem;
+  }
+
+  .orderThumbnail h4 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .thumbnailImage {
+    width: 100px;
+    height: 70px;
   }
 
   .orderThumbnail small {
@@ -516,13 +587,40 @@
     font-size: 0.8rem;
   }
 
-  .orderThumbnail img {
-    width: 60px;
-    height: 45px;
+  .orderThumbnail {
+    padding: 0.75rem;
+  }
+
+  .orderThumbnail h4 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .thumbnailImage {
+    width: 100px;
+    height: 70px;
   }
 
   .orderThumbnail small {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
+  }
+
+  .adminProof {
+    padding: 0.75rem;
+  }
+
+  .adminProof h4 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .proofImage {
+    width: 100px;
+    height: 70px;
+  }
+
+  .adminProof small {
+    font-size: 0.7rem;
   }
 
   .btn {

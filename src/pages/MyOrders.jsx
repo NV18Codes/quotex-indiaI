@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useOrders } from '../hooks/useOrders';
 import { formatDate, formatCurrency, validateFile, compressImage, manageStorageQuota } from '../utils/validation';
+import { Link } from 'react-router-dom';
 import styles from '../styles/MyOrders.module.css';
 
 export default function MyOrders() {
@@ -15,6 +16,27 @@ export default function MyOrders() {
   const [newDesignPreview, setNewDesignPreview] = useState(null);
   const [uploadError, setUploadError] = useState('');
 
+  // Check if order can be revised (only if status is "Revise Your Design" and not within 12 hours of start date)
+  const canReviseOrder = (order) => {
+    if (order.status !== 'Revise Your Design') {
+      return false;
+    }
+
+    // Check if less than 12 hours left before start date (IST)
+    const now = new Date();
+    const startDate = new Date(order.displayDate);
+    const timeDiff = startDate.getTime() - now.getTime();
+    const hoursDiff = timeDiff / (1000 * 60 * 60);
+    
+    // If less than 12 hours left, cannot revise
+    return hoursDiff >= 12;
+  };
+
+  // Check if order can be revised (only if status is "Revise Your Design")
+  const canRevisePendingOrder = (order) => {
+    return order.status === 'Revise Your Design';
+  };
+
   const handleCancelOrder = (orderId) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
       cancelOrder(orderId);
@@ -22,6 +44,13 @@ export default function MyOrders() {
   };
 
   const handleReviseOrder = (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    
+    if (!canReviseOrder(order)) {
+      alert('This order cannot be revised. Please check the status and timing requirements.');
+      return;
+    }
+
     setReviseOrderId(orderId);
     setShowReviseModal(true);
     setNewDesignFile(null);
@@ -120,9 +149,9 @@ export default function MyOrders() {
           <div className={styles.emptyState}>
             <h2>No orders yet</h2>
             <p>Start your first advertising campaign by booking an LED screen.</p>
-            <button className={`${styles.btn} ${styles.btnPrimary}`}>
+            <Link to="https://ad-screen-hub.vercel.app/book-ad" className={`${styles.btn} ${styles.btnPrimary}`}>
               Book Your First Ad
-            </button>
+            </Link>
           </div>
         ) : (
           <div className={styles.ordersList}>
@@ -137,6 +166,12 @@ export default function MyOrders() {
                     <p className={styles.displayDate}>
                       Display Date: {formatDate(order.displayDate)}
                     </p>
+                    <p className={styles.orderLocation}>
+                      <strong>Location:</strong> {order.location}
+                    </p>
+                    <p className={styles.orderScreen}>
+                      <strong>Screen:</strong> {order.screenName}
+                    </p>
                   </div>
                   <div className={`${styles.orderStatus} ${getStatusColor(order.status)}`}>
                     {order.status}
@@ -148,32 +183,42 @@ export default function MyOrders() {
                     <strong>Total Amount:</strong> {formatCurrency(order.totalAmount)}
                   </div>
                   
-                  {(order.status === 'In Display' || order.status === 'Completed Display') && (
-                    <div className={styles.orderThumbnail}>
+                  {/* Design Thumbnail - Show for all orders */}
+                  <div className={styles.orderThumbnail}>
+                    <h4>Your Design</h4>
+                    <img
+                      src={order.thumbnail}
+                      alt="Ad Preview"
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setShowImageModal(true);
+                      }}
+                      className={styles.thumbnailImage}
+                    />
+                    <small>Click to view full size</small>
+                  </div>
+
+                  {/* Admin Proof Image - Show for completed and in-display orders */}
+                  {order.adminProofImage && (order.status === 'In Display' || order.status === 'Completed Display') && (
+                    <div className={styles.adminProof}>
+                      <h4>Proof of Display</h4>
                       <img
-                        src={order.thumbnail}
-                        alt="Ad Preview"
+                        src={order.adminProofImage}
+                        alt="Ad Displayed on LED Screen"
                         onClick={() => {
                           setSelectedOrder(order);
                           setShowImageModal(true);
                         }}
+                        className={styles.proofImage}
                       />
-                      <small>Click to view full size</small>
+                      <small>Click to view proof of display</small>
                     </div>
                   )}
                 </div>
 
                 <div className={styles.orderActions}>
-                  {order.status === 'Pending Approval' && (
-                    <button
-                      onClick={() => handleReviseOrder(order.id)}
-                      className={`${styles.btn} ${styles.btnSecondary}`}
-                    >
-                      Revise Your Design
-                    </button>
-                  )}
-                  
-                  {order.status === 'Revise Your Design' && (
+                  {/* Revise Design Button - Only show if status is "Revise Your Design" and timing allows */}
+                  {canReviseOrder(order) && (
                     <button
                       onClick={() => handleReviseOrder(order.id)}
                       className={`${styles.btn} ${styles.btnPrimary}`}
@@ -182,6 +227,7 @@ export default function MyOrders() {
                     </button>
                   )}
                   
+                  {/* Cancel Order Button - Only show for pending and revision orders */}
                   {(order.status === 'Pending Approval' || order.status === 'Revise Your Design') && (
                     <button
                       onClick={() => handleCancelOrder(order.id)}

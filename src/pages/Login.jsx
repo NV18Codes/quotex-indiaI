@@ -10,8 +10,7 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false,
-    privacyPolicy: false
+    rememberMe: false
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -42,10 +41,6 @@ export default function Login() {
       newErrors.password = 'Password is required';
     }
 
-    if (!formData.privacyPolicy) {
-      newErrors.privacyPolicy = 'You must accept the Privacy Policy';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -58,7 +53,9 @@ export default function Login() {
     setIsLoading(true);
     
     try {
-      const result = login(formData.email, formData.password, formData.rememberMe);
+      // Convert email to lowercase for case-insensitive login
+      const email = formData.email.toLowerCase();
+      const result = login(email, formData.password, formData.rememberMe);
       
       if (result.success) {
         // Small delay to ensure state updates properly
@@ -133,25 +130,6 @@ export default function Login() {
               />
               <span>Remember me</span>
             </label>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="privacyPolicy"
-                checked={formData.privacyPolicy}
-                onChange={handleChange}
-                className={styles.checkbox}
-              />
-              <span>
-                I agree to the{' '}
-                <Link to="/privacy-policy" className={styles.link}>
-                  Privacy Policy
-                </Link>
-              </span>
-            </label>
-            {errors.privacyPolicy && <span className={styles.formError}>{errors.privacyPolicy}</span>}
           </div>
 
           <button

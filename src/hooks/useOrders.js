@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { mockOrders } from '../data/mockData';
+import { mockOrders, mockScreens } from '../data/mockData';
 import { generateOrderId, manageStorageQuota } from '../utils/validation';
 
 export const useOrders = (userId) => {
@@ -34,13 +34,42 @@ export const useOrders = (userId) => {
     setLoading(false);
   }, [userId]);
 
+  // Calculate available inventory for a specific screen and date
+  const getAvailableInventory = (screenId, date) => {
+    const screen = mockScreens.find(s => s.id === screenId);
+    if (!screen) return 0;
+
+    // Count existing bookings for this screen and date
+    const bookedCount = orders.filter(order => 
+      order.screenId === screenId && 
+      order.displayDate === date && 
+      order.status !== 'Cancelled Display'
+    ).length;
+
+    // Return available inventory
+    return Math.max(0, screen.totalInventory - bookedCount);
+  };
+
+  // Check if screen has available inventory for a specific date
+  const hasAvailableInventory = (screenId, date) => {
+    return getAvailableInventory(screenId, date) > 0;
+  };
+
   // Create new order
   const createOrder = (orderData) => {
+    // Check if inventory is available
+    if (!hasAvailableInventory(orderData.screenId, orderData.displayDate)) {
+      return { success: false, error: 'No available inventory for this location and date' };
+    }
+
     const newOrder = {
       id: generateOrderId(),
       userId,
       orderDate: new Date().toISOString().split('T')[0],
       status: 'Pending Approval',
+      screenName: orderData.screenName || 'Unknown Screen',
+      location: orderData.location || 'Unknown Location',
+      adminProofImage: null, // Will be set by admin when ad goes live
       ...orderData
     };
 
@@ -128,13 +157,9 @@ export const useOrders = (userId) => {
     return orders.filter(order => order.status === status);
   };
 
-  // Check if screen is already booked for a specific date
+  // Check if screen is already booked for a specific date (deprecated - use inventory instead)
   const isScreenBooked = (screenId, date) => {
-    return orders.some(order => 
-      order.screenId === screenId && 
-      order.displayDate === date && 
-      order.status !== 'Cancelled Display'
-    );
+    return !hasAvailableInventory(screenId, date);
   };
 
   // Get all booked screens for a specific date
@@ -156,7 +181,9 @@ export const useOrders = (userId) => {
     reviseOrder,
     getOrderById,
     getOrdersByStatus,
-    isScreenBooked,
+    isScreenBooked, // Keep for backward compatibility
+    hasAvailableInventory,
+    getAvailableInventory,
     getBookedScreensForDate
   };
 };

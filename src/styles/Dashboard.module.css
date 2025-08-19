@@ -166,6 +166,28 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.screenCard.fullyBooked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+  background-color: var(--gray-100);
+}
+
+.screenCard.fullyBooked:hover {
+  transform: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.screenCard.available {
+  cursor: pointer;
+}
+
+.screenCard.available:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
 .bookedBadge {
   position: absolute;
   top: 0.5rem;
@@ -177,6 +199,33 @@
   font-size: 0.75rem;
   font-weight: 600;
   z-index: 1;
+}
+
+.fullyBookedBadge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #6b7280;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.inventoryInfo {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.availableSlots {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .screenImage {
@@ -980,4 +1029,147 @@
 .confirmationActions .btn {
   width: auto;
   min-width: 150px;
+}
+
+/* Form Styles for New Fields */
+.addressSection,
+.gstSection,
+.couponSection,
+.termsSection {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--gray-50);
+  border-radius: 0.75rem;
+  border: 1px solid var(--gray-200);
+}
+
+.addressSection h3,
+.gstSection h3,
+.couponSection h3 {
+  color: var(--text-dark);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.formLabel {
+  display: block;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--gray-300);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background-color: var(--white);
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(19, 25, 179, 0.1);
+}
+
+.formInput::placeholder {
+  color: var(--gray-400);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.checkbox {
+  margin-top: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary-color);
+}
+
+.link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: var(--primary-dark);
+}
+
+/* Enhanced Preview Container */
+.previewContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+}
+
+/* Mobile Responsive for Form Elements */
+@media (max-width: 768px) {
+  .addressSection,
+  .gstSection,
+  .couponSection,
+  .termsSection {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .addressSection h3,
+  .gstSection h3,
+  .couponSection h3 {
+    font-size: 1rem;
+  }
+
+  .formInput {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+  }
+
+  .checkboxLabel {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .addressSection,
+  .gstSection,
+  .couponSection,
+  .termsSection {
+    padding: 0.75rem;
+  }
+
+  .formInput {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .checkboxLabel {
+    font-size: 0.75rem;
+  }
 }

@@ -7,6 +7,14 @@ export const mockUsers = [
     mobile: "+91 9876543210",
     password: "Test@123",
     rememberMe: false
+  },
+  {
+    id: 2,
+    fullName: "Demo User",
+    email: "demo@example.com",
+    mobile: "+91 9876543211",
+    password: "Demo@123",
+    rememberMe: false
   }
 ];
 
@@ -17,44 +25,52 @@ export const mockScreens = [
     name: "MG Road LED Screen",
     image: "/Banner.png",
     size: "20ft x 10ft",
-    pixels: "1920x1080",
+    pixels: "1920px x 1080px",
     orientation: "Landscape",
     location: "MG Road, Bangalore",
     price: 4999,
-    description: "High-traffic location in the heart of Bangalore"
+    description: "High-traffic location in the heart of Bangalore",
+    totalInventory: 3, // Total available slots per day
+    inventoryPerDate: {} // Will track inventory per specific date
   },
   {
     id: 2,
     name: "Koramangala Digital Billboard",
     image: "/Banner.png",
     size: "15ft x 8ft",
-    pixels: "1440x720",
+    pixels: "1440px x 720px",
     orientation: "Landscape",
     location: "Koramangala, Bangalore",
     price: 3999,
-    description: "Popular commercial area with high visibility"
+    description: "Popular commercial area with high visibility",
+    totalInventory: 2, // Total available slots per day
+    inventoryPerDate: {}
   },
   {
     id: 3,
     name: "Indiranagar LED Display",
     image: "/Banner.png",
     size: "25ft x 12ft",
-    pixels: "2560x1280",
+    pixels: "2560px x 1280px",
     orientation: "Landscape",
     location: "Indiranagar, Bangalore",
     price: 5999,
-    description: "Premium location with affluent audience"
+    description: "Premium location with affluent audience",
+    totalInventory: 1, // Total available slots per day
+    inventoryPerDate: {}
   },
   {
     id: 4,
     name: "Whitefield Digital Screen",
     image: "/Banner.png",
     size: "18ft x 9ft",
-    pixels: "1600x900",
+    pixels: "1600px x 900px",
     orientation: "Landscape",
     location: "Whitefield, Bangalore",
     price: 4499,
-    description: "IT corridor with tech-savvy audience"
+    description: "IT corridor with tech-savvy audience",
+    totalInventory: 2, // Total available slots per day
+    inventoryPerDate: {}
   }
 ];
 
@@ -117,7 +133,10 @@ export const mockOrders = [
     designFile: "design1.jpg",
     supportingDoc: "doc1.pdf",
     totalAmount: 4999,
-    thumbnail: "/Banner.png"
+    thumbnail: "/Banner.png",
+    screenName: "MG Road LED Screen",
+    location: "MG Road, Bangalore",
+    adminProofImage: "/Banner.png" // Image of ad displayed on LED screen
   },
   {
     id: "ORD002",
@@ -130,7 +149,10 @@ export const mockOrders = [
     designFile: "design2.jpg",
     supportingDoc: "doc2.pdf",
     totalAmount: 13999,
-    thumbnail: "/Banner.png"
+    thumbnail: "/Banner.png",
+    screenName: "Koramangala Digital Billboard",
+    location: "Koramangala, Bangalore",
+    adminProofImage: null // No proof yet as it's still in display
   }
 ];
 
