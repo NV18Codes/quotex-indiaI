@@ -1,6 +1,9 @@
 import { Bell, Settings, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TopBar = () => {
+  const navigate = useNavigate();
+  
   return (
     <header className="fixed top-0 left-0 right-0 z-30 h-16 flex items-center justify-between px-8 bg-[#20243a] border-b border-[#23273a] shadow-strong">
       {/* Left: Logo and Platform Name */}
@@ -29,7 +32,12 @@ const TopBar = () => {
           <span className="text-white font-bold text-lg">$10,000.00</span>
         </div>
         <button className="bg-green text-white px-5 py-2 rounded-lg font-bold shadow-soft hover:bg-green/90">+ Deposit</button>
-        <button className="bg-[#353a4d] text-white px-5 py-2 rounded-lg font-bold shadow-soft hover:bg-[#23273a]">Withdrawal</button>
+        <button 
+          onClick={() => navigate('/withdrawal')}
+          className="bg-[#353a4d] text-white px-5 py-2 rounded-lg font-bold shadow-soft hover:bg-[#23273a]"
+        >
+          Withdrawal
+        </button>
         <button className="bg-[#23273a] text-gray-300 p-2 rounded-full hover:text-white"><Bell className="w-5 h-5" /></button>
         <button className="bg-[#23273a] text-gray-300 p-2 rounded-full hover:text-white"><Settings className="w-5 h-5" /></button>
       </div>

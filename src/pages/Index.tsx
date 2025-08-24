@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TradingChart from '@/components/TradingChart';
@@ -12,31 +13,26 @@ import FAQ from '@/components/FAQ';
 import CTA from '@/components/CTA';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   Trophy, 
   TrendingUp, 
   DollarSign, 
   Activity, 
   Target,
-  Clock,
-  CheckCircle,
-  XCircle
+  CreditCard,
+  Download,
+  Settings
 } from 'lucide-react';
-import { getUnifiedTradeData } from '@/contexts/AuthContext';
+
 
 const TradingDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [liveBalance, setLiveBalance] = useState(user?.liveBalance || 0);
-  const { trades: unifiedTrades, stats: unifiedStats } = getUnifiedTradeData(user?.tradeHistory);
 
-  // Ensure trade data is available
-  useEffect(() => {
-    const savedTrades = localStorage.getItem('userTrades');
-    if (!savedTrades) {
-      // This will trigger the getUnifiedTradeData function to generate trades
-      getUnifiedTradeData();
-    }
-  }, []);
+
+
 
   // Generate mock market data
   const markets = [
@@ -57,59 +53,30 @@ const TradingDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Listen for the 'trades-updated' event
-  useEffect(() => {
-    const handleUpdate = () => {
-      const savedTrades = localStorage.getItem('userTrades');
-      if (savedTrades) {
-        // Re-parse and update state or force re-render
-        window.location.reload(); // TEMP: force reload for instant sync
-      }
-    };
-    window.addEventListener('trades-updated', handleUpdate);
-    return () => window.removeEventListener('trades-updated', handleUpdate);
-  }, []);
 
-  // Most recent trades for display
-  const recentTrades = unifiedTrades
-    .filter(trade => trade.status === 'completed')
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 10);
 
-  const formatTime = (timestamp: Date | string) => {
-    const dateObj = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
-    if (!dateObj || isNaN(dateObj.getTime())) {
-      return 'Invalid date';
-    }
-    return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
-  };
 
-  const formatDuration = (seconds: number) => {
-    if (seconds < 60) return `${seconds}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-    return `${Math.floor(seconds / 3600)}h`;
-  };
 
   const quickStats = [
     {
       title: 'Total Trades',
-      value: unifiedStats.totalTrades.toLocaleString(),
-      change: '+12 today',
-      isPositive: true,
+      value: '0',
+      change: 'No trades yet',
+      isPositive: false,
       icon: Target
     },
     {
       title: 'Win Rate',
-      value: `${unifiedStats.winRate.toFixed(0)}%`,
-      change: '+2.5% this week',
-      isPositive: true,
+      value: '0%',
+      change: 'No trades yet',
+      isPositive: false,
       icon: TrendingUp
     },
     {
       title: 'Total P&L',
-      value: unifiedStats.totalProfit > 0 ? `+$${unifiedStats.totalProfit.toFixed(2)}` : `$${unifiedStats.totalProfit.toFixed(2)}`,
-      change: '+$1,250 today',
-      isPositive: true,
+      value: '$0.00',
+      change: 'No trades yet',
+      isPositive: false,
       icon: DollarSign
     },
     {
@@ -140,19 +107,11 @@ const TradingDashboard = () => {
               <div className="flex items-center gap-4 mt-2">
                 <Badge className="bg-blue-600 text-white">
                   <Trophy className="h-3 w-3 mr-1" />
-                  Professional Trader
-                </Badge>
-                <Badge className="bg-green-600 text-white">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {user?.winRate}% Win Rate
-                </Badge>
-                <Badge className="bg-blue-600 text-white">
-                  <DollarSign className="h-3 w-3 mr-1" />
-                  {unifiedStats.totalProfit > 0 ? `+$${unifiedStats.totalProfit.toFixed(2)}` : `$${unifiedStats.totalProfit.toFixed(2)}`}
+                  New Trader
                 </Badge>
                 <Badge className="bg-green-600 text-white">
                   <DollarSign className="h-3 w-3 mr-1" />
-                  {liveBalance.toLocaleString()}
+                  ${liveBalance.toLocaleString()}
                 </Badge>
               </div>
             </div>
@@ -183,68 +142,39 @@ const TradingDashboard = () => {
           <TradingChart />
         </div>
         
-        {/* Trade History and Statistics side by side */}
+        {/* Trading Statistics and Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Active Trades */}
+          {/* Quick Actions */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-4">
               <CardTitle className="text-white flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Active Trades
+                <TrendingUp className="h-5 w-5" />
+                Quick Actions
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[200px] overflow-y-auto pr-2">
-                {recentTrades.length > 0 ? (
-                  <div className="space-y-3">
-                    {recentTrades.map((trade, index) => (
-                      <div key={trade.id || index} className="p-3 border border-gray-600 rounded-lg bg-gray-700 hover:bg-gray-650 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                              trade.result === 'win' ? 'bg-green-600' : 'bg-red-600'
-                            }`}>
-                              {trade.result === 'win' ? (
-                                <CheckCircle className="h-3 w-3 text-white" />
-                              ) : (
-                                <XCircle className="h-3 w-3 text-white" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <div className="font-bold text-sm text-white">{trade.symbol}</div>
-                                <Badge className={trade.type === 'buy' ? 'bg-green-600' : 'bg-red-600'}>
-                                  {trade.type.toUpperCase()}
-                                </Badge>
-                                <Badge className={trade.result === 'win' ? 'bg-green-600' : 'bg-red-600'}>
-                                  {trade.result?.toUpperCase()}
-                                </Badge>
-                              </div>
-                              <div className="text-xs text-gray-400">
-                                ${trade.amount} • {formatDuration(trade.duration)} • {formatTime(trade.timestamp)}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className={`text-sm font-bold ${
-                              trade.profit && trade.profit >= 0 ? 'text-green-400' : 'text-red-400'
-                            }`}>
-                              {trade.profit && trade.profit >= 0 ? '+' : ''}${trade.profit?.toFixed(2)}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {trade.profit && trade.amount ? `${((trade.profit / trade.amount) * 100).toFixed(1)}%` : '0%'}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 text-lg mb-2">No trades found</div>
-                    <p className="text-gray-500 text-sm">No completed trades yet</p>
-                  </div>
-                )}
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => navigate('/withdrawal')}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Withdrawal
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Statement
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Account Settings
+                </Button>
               </div>
             </CardContent>
           </Card>

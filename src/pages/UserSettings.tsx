@@ -152,11 +152,19 @@ const UserSettings = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="firstName" className="text-gray-300">First Name</Label>
-                      <Input id="firstName" defaultValue="Samuel" className="mt-1 bg-gray-700 border-gray-600 text-white" />
+                      <Input 
+                        id="firstName" 
+                        defaultValue={user?.name?.split(' ')[0] || ''} 
+                        className="mt-1 bg-gray-700 border-gray-600 text-white" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="lastName" className="text-gray-300">Last Name</Label>
-                      <Input id="lastName" defaultValue="Joseph" className="mt-1 bg-gray-700 border-gray-600 text-white" />
+                      <Input 
+                        id="lastName" 
+                        defaultValue={user?.name?.split(' ').slice(1).join(' ') || ''} 
+                        className="mt-1 bg-gray-700 border-gray-600 text-white" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="email" className="text-gray-300">Email Address</Label>
@@ -164,15 +172,20 @@ const UserSettings = () => {
                     </div>
                     <div>
                       <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
-                      <Input id="phone" defaultValue="+1 (555) 123-4567" className="mt-1 bg-gray-700 border-gray-600 text-white" />
+                      <Input 
+                        id="phone" 
+                        defaultValue={user?.email === 'sudeepbenergy@gmail.com' ? '+91 XXXXXXXXXX' : '+1 (555) 123-4567'} 
+                        className="mt-1 bg-gray-700 border-gray-600 text-white" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="country" className="text-gray-300">Country</Label>
-                      <Select defaultValue="us">
+                      <Select defaultValue={user?.email === 'sudeepbenergy@gmail.com' ? 'in' : 'us'}>
                         <SelectTrigger className="mt-1 bg-gray-700 border-gray-600 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-700 border-gray-600">
+                          <SelectItem value="in" className="text-white hover:bg-gray-600">India</SelectItem>
                           <SelectItem value="us" className="text-white hover:bg-gray-600">United States</SelectItem>
                           <SelectItem value="uk" className="text-white hover:bg-gray-600">United Kingdom</SelectItem>
                           <SelectItem value="ca" className="text-white hover:bg-gray-600">Canada</SelectItem>
@@ -182,11 +195,12 @@ const UserSettings = () => {
                     </div>
                     <div>
                       <Label htmlFor="timezone" className="text-gray-300">Timezone</Label>
-                      <Select defaultValue="est">
+                      <Select defaultValue={user?.email === 'sudeepbenergy@gmail.com' ? 'ist' : 'est'}>
                         <SelectTrigger className="mt-1 bg-gray-700 border-gray-600 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-700 border-gray-600">
+                          <SelectItem value="ist" className="text-white hover:bg-gray-600">Indian Standard Time (IST)</SelectItem>
                           <SelectItem value="est" className="text-white hover:bg-gray-600">Eastern Time (EST)</SelectItem>
                           <SelectItem value="pst" className="text-white hover:bg-gray-600">Pacific Time (PST)</SelectItem>
                           <SelectItem value="gmt" className="text-white hover:bg-gray-600">Greenwich Mean Time (GMT)</SelectItem>
@@ -247,6 +261,13 @@ const UserSettings = () => {
                     </div>
                     <Separator className="bg-gray-700" />
                     <div className="flex gap-4">
+                      <Button 
+                        onClick={() => navigate('/withdrawal')}
+                        className="bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Withdrawal
+                      </Button>
                       <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                         <Download className="h-4 w-4 mr-2" />
                         Export Data

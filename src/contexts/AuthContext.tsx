@@ -74,7 +74,7 @@ const generateTradeHistory = (): Trade[] => {
   return trades.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 };
 
-// Two default users
+// Three default users
 const samuelUser: User = {
   id: '1',
   name: 'Samuel Joseph',
@@ -93,6 +93,18 @@ const jonathanUser: User = {
   email: 'jonathanjeremiah@example.com',
   demoBalance: 10000,
   liveBalance: 21000,
+  totalTrades: 0,
+  winRate: 0,
+  totalPnL: 0,
+  tradeHistory: []
+};
+
+const sudeepUser: User = {
+  id: '3',
+  name: 'Easari Sudeep',
+  email: 'sudeepbenergy@gmail.com',
+  demoBalance: 12600,
+  liveBalance: 12600,
   totalTrades: 0,
   winRate: 0,
   totalPnL: 0,
@@ -128,6 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authenticatedUser = samuelUser;
     } else if (email === 'johathan23j@gmail.com' && password === 'godfather23JGJJJ$!') {
       authenticatedUser = jonathanUser;
+    } else if (email === 'sudeepbenergy@gmail.com' && password === 'benergy@123') {
+      authenticatedUser = sudeepUser;
     }
 
     if (authenticatedUser) {

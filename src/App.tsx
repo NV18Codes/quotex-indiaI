@@ -9,6 +9,7 @@ import Education from './pages/Education';
 import About from './pages/About';
 import UserSettings from './pages/UserSettings';
 import RecentTrades from './pages/RecentTrades';
+import Withdrawal from './pages/Withdrawal';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/settings" element={<UserSettings />} />
           <Route path="/recent-trades" element={<RecentTrades />} />
+          <Route path="/withdrawal" element={<Withdrawal />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
