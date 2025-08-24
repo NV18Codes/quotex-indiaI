@@ -25,7 +25,11 @@ const Withdrawal = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('1000');
   const [currency, setCurrency] = useState('INR');
   const [paymentMethod, setPaymentMethod] = useState('Net Banking');
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(() => {
+    // Check localStorage for existing withdrawal status
+    const savedStatus = localStorage.getItem('withdrawal_submitted');
+    return savedStatus === 'true';
+  });
   const [formData, setFormData] = useState({
     aadhaar: '',
     firstName: '',
@@ -48,6 +52,14 @@ const Withdrawal = () => {
     // Handle withdrawal submission
     console.log('Withdrawal submitted:', { withdrawalAmount, currency, paymentMethod, formData });
     setIsSubmitted(true);
+    // Save withdrawal status to localStorage
+    localStorage.setItem('withdrawal_submitted', 'true');
+  };
+
+  // Function to clear withdrawal status (can be called when withdrawal is processed)
+  const clearWithdrawalStatus = () => {
+    setIsSubmitted(false);
+    localStorage.removeItem('withdrawal_submitted');
   };
 
   const isINRWithdrawal = currency === 'INR';
@@ -393,6 +405,9 @@ const Withdrawal = () => {
                     <div className="text-sm text-gray-300">
                       <strong>Note:</strong> You cannot place another withdrawal request until the current one is processed. 
                       Please wait for the confirmation email before attempting another withdrawal.
+                    </div>
+                    <div className="text-xs text-gray-400 mt-2">
+                      <strong>Status:</strong> This withdrawal status will automatically reset once your payment is processed (within 48 hours).
                     </div>
                   </div>
                 </div>
