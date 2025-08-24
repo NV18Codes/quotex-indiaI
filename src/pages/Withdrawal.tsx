@@ -42,10 +42,13 @@ const Withdrawal = () => {
     });
   };
 
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle withdrawal submission
     console.log('Withdrawal submitted:', { withdrawalAmount, currency, paymentMethod, formData });
+    setIsSubmitted(true);
   };
 
   const isINRWithdrawal = currency === 'INR';
@@ -356,15 +359,30 @@ const Withdrawal = () => {
                   </div>
                 )}
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={!isAmountValid}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-                >
-                  Confirm <ArrowRight className="w-4 h-4" />
-                </Button>
-              </form>
+                                 {/* Submit Button */}
+                 <Button
+                   type="submit"
+                   disabled={!isAmountValid}
+                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                 >
+                   Confirm <ArrowRight className="w-4 h-4" />
+                 </Button>
+               </form>
+
+               {/* Success Message */}
+               {isSubmitted && (
+                 <div className="mt-6 p-4 bg-green-900/20 border border-green-600 rounded-lg">
+                   <div className="flex items-center gap-3">
+                     <CheckCircle className="h-5 w-5 text-green-400" />
+                     <div className="text-green-300">
+                       <div className="font-medium">Withdrawal Request Submitted Successfully!</div>
+                       <div className="text-sm mt-1">
+                         Payment processing will be received within 48 hours. You will receive a confirmation email once the transaction is processed.
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               )}
             </CardContent>
           </Card>
 
