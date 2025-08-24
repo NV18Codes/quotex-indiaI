@@ -149,22 +149,23 @@ const Withdrawal = () => {
           </Card>
 
           {/* Withdrawal Form */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Withdrawal Form
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6 p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
-                <div className="text-sm text-blue-300">
-                  <strong>Important:</strong> For INR withdrawals, the first payment is limited to a maximum of ₹1,000. 
-                  Once this ₹1,000 is successfully withdrawn, the remaining balance can be withdrawn in subsequent transactions. 
-                  Aadhaar verification is mandatory as per Indian banking regulations.
+          {!isSubmitted ? (
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Withdrawal Form
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6 p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
+                  <div className="text-sm text-blue-300">
+                    <strong>Important:</strong> For INR withdrawals, the first payment is limited to a maximum of ₹1,000. 
+                    Once this ₹1,000 is successfully withdrawn, the remaining balance can be withdrawn in subsequent transactions. 
+                    Aadhaar verification is mandatory as per Indian banking regulations.
+                  </div>
                 </div>
-              </div>
-                             <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Amount and Currency */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Amount:</label>
@@ -369,27 +370,39 @@ const Withdrawal = () => {
               </form>
             </CardContent>
           </Card>
-
-        </div>
-        
-        {/* Success Message */}
-        {isSubmitted && (
-          <div className="mt-8">
-            <Card className="bg-green-900/20 border-green-600">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 text-green-300">
-                  <CheckCircle className="h-6 w-6 text-green-400" />
-                  <div>
-                    <h3 className="font-semibold text-lg">Withdrawal Request Submitted Successfully!</h3>
-                    <p className="text-green-200 mt-1">
-                      Payment processing will be received within 48hrs. You will receive a confirmation email with transaction details.
-                    </p>
+          ) : (
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Withdrawal Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="p-6">
+                  <div className="flex items-center gap-3 text-green-300 mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-400" />
+                    <div>
+                      <h3 className="font-semibold text-xl">Withdrawal Request Submitted Successfully!</h3>
+                      <p className="text-green-200 mt-1">
+                        Payment processing will be received within 48hrs. You will receive a confirmation email with transaction details.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-700 rounded-lg p-4">
+                    <div className="text-sm text-gray-300">
+                      <strong>Note:</strong> You cannot place another withdrawal request until the current one is processed. 
+                      Please wait for the confirmation email before attempting another withdrawal.
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        )}
+          )}
+
+        </div>
+        
+
         
         {/* FAQ Section */}
         <div className="mt-12">
