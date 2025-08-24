@@ -42,13 +42,19 @@ const Withdrawal = () => {
     });
   };
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(() => {
+    // Check localStorage on component mount to persist submission state
+    const savedState = localStorage.getItem('withdrawalSubmitted');
+    return savedState === 'true';
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle withdrawal submission
     console.log('Withdrawal submitted:', { withdrawalAmount, currency, paymentMethod, formData });
     setIsSubmitted(true);
+    // Save to localStorage to persist across page refreshes
+    localStorage.setItem('withdrawalSubmitted', 'true');
   };
 
   const isINRWithdrawal = currency === 'INR';
@@ -389,15 +395,32 @@ const Withdrawal = () => {
                      </div>
                    </div>
                    
-                   <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-6">
-                     <div className="text-blue-300">
-                       <div className="font-medium text-lg mb-2">Important Notice</div>
-                       <div className="text-sm">
-                         You cannot place another withdrawal request until the current processing is complete. 
-                         This ensures proper transaction handling and prevents any processing delays.
-                       </div>
-                     </div>
-                   </div>
+                                       <div className="bg-blue-900/20 border border-blue-600 rounded-lg p-6 mb-6">
+                      <div className="text-blue-300">
+                        <div className="font-medium text-lg mb-2">Important Notice</div>
+                        <div className="text-sm">
+                          You cannot place another withdrawal request until the current processing is complete. 
+                          This ensures proper transaction handling and prevents any processing delays.
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Reset Button - Only show after 48 hours or for admin purposes */}
+                    <div className="text-center">
+                      <Button
+                        onClick={() => {
+                          setIsSubmitted(false);
+                          localStorage.removeItem('withdrawalSubmitted');
+                        }}
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                      >
+                        Reset Form (For Testing)
+                      </Button>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Note: In production, this button would only appear after the 48-hour processing period
+                      </div>
+                    </div>
                  </div>
                )}
              </CardContent>
