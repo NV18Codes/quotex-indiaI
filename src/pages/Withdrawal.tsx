@@ -25,6 +25,7 @@ const Withdrawal = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('1000');
   const [currency, setCurrency] = useState('INR');
   const [paymentMethod, setPaymentMethod] = useState('Net Banking');
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     aadhaar: '',
     firstName: '',
@@ -46,6 +47,7 @@ const Withdrawal = () => {
     e.preventDefault();
     // Handle withdrawal submission
     console.log('Withdrawal submitted:', { withdrawalAmount, currency, paymentMethod, formData });
+    setIsSubmitted(true);
   };
 
   const isINRWithdrawal = currency === 'INR';
@@ -369,6 +371,25 @@ const Withdrawal = () => {
           </Card>
 
         </div>
+        
+        {/* Success Message */}
+        {isSubmitted && (
+          <div className="mt-8">
+            <Card className="bg-green-900/20 border-green-600">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 text-green-300">
+                  <CheckCircle className="h-6 w-6 text-green-400" />
+                  <div>
+                    <h3 className="font-semibold text-lg">Withdrawal Request Submitted Successfully!</h3>
+                    <p className="text-green-200 mt-1">
+                      Payment processing will be received within 48hrs. You will receive a confirmation email with transaction details.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
         
         {/* FAQ Section */}
         <div className="mt-12">
