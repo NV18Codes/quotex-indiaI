@@ -99,12 +99,12 @@ const jonathanUser: User = {
   tradeHistory: []
 };
 
-const sudeepUser: User = {
+const johnUser: User = {
   id: '3',
-  name: 'Easari Sudeep',
-  email: 'sudeepbenergy@gmail.com',
-  demoBalance: 13600,
-  liveBalance: 13600,
+  name: 'John Osteen Patha',
+  email: 'johnnydrummer10@gmail.com',
+  demoBalance: 14900,
+  liveBalance: 14900,
   totalTrades: 0,
   winRate: 0,
   totalPnL: 0,
@@ -140,8 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authenticatedUser = samuelUser;
     } else if (email === 'johathan23j@gmail.com' && password === 'godfather23JGJJJ$!') {
       authenticatedUser = jonathanUser;
-    } else if (email === 'sudeepbenergy@gmail.com' && password === 'benergy@123') {
-      authenticatedUser = sudeepUser;
+    } else if (email === 'johnnydrummer10@gmail.com' && password === 'drummer10') {
+      authenticatedUser = johnUser;
     }
 
     if (authenticatedUser) {

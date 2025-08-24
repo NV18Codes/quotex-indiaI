@@ -174,13 +174,13 @@ const UserSettings = () => {
                       <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
                       <Input 
                         id="phone" 
-                        defaultValue={user?.email === 'sudeepbenergy@gmail.com' ? '+91 XXXXXXXXXX' : '+1 (555) 123-4567'} 
+                        defaultValue={user?.email === 'johnnydrummer10@gmail.com' ? '+91 XXXXXXXXXX' : '+1 (555) 123-4567'} 
                         className="mt-1 bg-gray-700 border-gray-600 text-white" 
                       />
                     </div>
                     <div>
                       <Label htmlFor="country" className="text-gray-300">Country</Label>
-                      <Select defaultValue={user?.email === 'sudeepbenergy@gmail.com' ? 'in' : 'us'}>
+                      <Select defaultValue={user?.email === 'johnnydrummer10@gmail.com' ? 'in' : 'us'}>
                         <SelectTrigger className="mt-1 bg-gray-700 border-gray-600 text-white">
                           <SelectValue />
                         </SelectTrigger>
@@ -195,7 +195,7 @@ const UserSettings = () => {
                     </div>
                     <div>
                       <Label htmlFor="timezone" className="text-gray-300">Timezone</Label>
-                      <Select defaultValue={user?.email === 'sudeepbenergy@gmail.com' ? 'ist' : 'est'}>
+                      <Select defaultValue={user?.email === 'johnnydrummer10@gmail.com' ? 'ist' : 'est'}>
                         <SelectTrigger className="mt-1 bg-gray-700 border-gray-600 text-white">
                           <SelectValue />
                         </SelectTrigger>
