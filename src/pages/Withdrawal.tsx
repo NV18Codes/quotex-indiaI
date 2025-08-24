@@ -155,12 +155,13 @@ const Withdrawal = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="mb-6 p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
-                <div className="text-sm text-blue-300">
-                  <strong>Note:</strong> This withdrawal form is configured for Indian users. 
-                  INR withdrawals are limited to ₹1,000 maximum and require Aadhaar verification as per Indian banking regulations.
-                </div>
-              </div>
+                             <div className="mb-6 p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
+                 <div className="text-sm text-blue-300">
+                   <strong>Payment Structure:</strong> For Indian users, the <strong>first payment is limited to ₹1,000 INR maximum</strong>. 
+                   Once this initial ₹1,000 withdrawal is processed and completed, you can make additional withdrawals. 
+                   Aadhaar verification is mandatory for INR withdrawals as per Indian banking regulations.
+                 </div>
+               </div>
                              <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Amount and Currency */}
                 <div>
