@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
 import DynamicFavicon from './components/DynamicFavicon';
+import ProtectedRoute from './components/ProtectedRoute';
 import Index from './pages/Index';
 import BinaryOptions from './pages/BinaryOptions';
 import Markets from './pages/Markets';
@@ -19,14 +20,14 @@ function App() {
         <ScrollToTop />
         <DynamicFavicon />
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/binary-options" element={<BinaryOptions />} />
-          <Route path="/markets" element={<Markets />} />
-          <Route path="/education" element={<Education />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/settings" element={<UserSettings />} />
-          <Route path="/recent-trades" element={<RecentTrades />} />
-          <Route path="/withdrawal" element={<Withdrawal />} />
+          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/binary-options" element={<ProtectedRoute><BinaryOptions /></ProtectedRoute>} />
+          <Route path="/markets" element={<ProtectedRoute><Markets /></ProtectedRoute>} />
+          <Route path="/education" element={<ProtectedRoute><Education /></ProtectedRoute>} />
+          <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
+          <Route path="/recent-trades" element={<ProtectedRoute><RecentTrades /></ProtectedRoute>} />
+          <Route path="/withdrawal" element={<ProtectedRoute><Withdrawal /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

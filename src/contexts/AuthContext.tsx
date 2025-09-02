@@ -10,6 +10,7 @@ interface User {
   winRate: number;
   totalPnL: number;
   tradeHistory: Trade[];
+  isTerminated?: boolean;
 }
 
 interface Trade {
@@ -108,7 +109,8 @@ const sudeepUser: User = {
   totalTrades: 0,
   winRate: 0,
   totalPnL: 0,
-  tradeHistory: []
+  tradeHistory: [],
+  isTerminated: true
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
