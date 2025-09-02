@@ -46,8 +46,7 @@ const AccountTerminated = () => {
                   by the Forex Federation regulatory framework.
                 </p>
                 <p className="text-white mt-4 leading-relaxed">
-                  As a result of these violations, your trading account has been <strong className="text-red-400">permanently terminated</strong> 
-                  effective immediately. This decision is final and non-appealable.
+                  As a result of these violations, your trading account has been <strong className="text-red-400">permanently terminated</strong> effective immediately. This decision is final and non-appealable.
                 </p>
               </div>
             </div>
@@ -124,7 +123,7 @@ const AccountTerminated = () => {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-gray-500 text-sm">
-            © 2024 Forex Federation. All rights reserved. | Regulatory Compliance Division
+            © 2025 Forex Federation. All rights reserved. | Regulatory Compliance Division
           </p>
         </div>
       </div>
