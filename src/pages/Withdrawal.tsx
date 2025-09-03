@@ -201,7 +201,7 @@ const Withdrawal = () => {
 
                 {/* Amount to Send */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Amount to Send</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Amount to Send (USD)</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
@@ -209,48 +209,99 @@ const Withdrawal = () => {
                       onChange={(e) => setWithdrawalAmount(e.target.value)}
                       className="bg-gray-700 border-gray-600 text-white"
                       min="0"
-                      step="0.000001"
-                      placeholder="Enter amount"
+                      step="0.01"
+                      placeholder="Enter USD amount"
                     />
-                    <Select value={currency} onValueChange={setCurrency}>
-                      <SelectTrigger className="w-20 bg-gray-700 border-gray-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-700 border-gray-600">
-                        <SelectItem value="BTC" className="text-white hover:bg-gray-600">
-                          BTC
-                        </SelectItem>
-                        <SelectItem value="ETH" className="text-white hover:bg-gray-600">
-                          ETH
-                        </SelectItem>
-                        <SelectItem value="USDT" className="text-white hover:bg-gray-600">
-                          USDT
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="w-20 bg-gray-600 border border-gray-500 text-white flex items-center justify-center rounded-md">
+                      USD
+                    </div>
                   </div>
                   <div 
                     className="text-blue-400 text-sm mt-1 cursor-pointer hover:text-blue-300"
                     onClick={() => setWithdrawalAmount((user?.liveBalance || 0).toString())}
                   >
-                    Send Entire Balance ({user?.liveBalance?.toFixed(6) || "0.000000"} {currency})
+                    Send Entire Balance (${user?.liveBalance?.toFixed(2) || "0.00"} USD)
                   </div>
                   <div className="text-xs text-yellow-400 mt-1">
                     <strong>Required:</strong> You must withdraw your entire balance. Partial withdrawals are not allowed.
                   </div>
                 </div>
 
+                {/* Cryptocurrency Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Withdraw as Cryptocurrency</label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-700 border-gray-600">
+                      <SelectItem value="BTC" className="text-white hover:bg-gray-600">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-orange-500 rounded-full"></div>
+                          Bitcoin (BTC)
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="ETH" className="text-white hover:bg-gray-600">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                          Ethereum (ETH)
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="USDT" className="text-white hover:bg-gray-600">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                          Tether (USDT)
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="text-xs text-gray-400 mt-1">
+                    Your USD balance will be converted to the selected cryptocurrency
+                  </div>
+                </div>
+
                 {/* Network Fee */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Network Fee</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Network Fee (USD)</label>
                   <Input
                     type="text"
-                    value="0.001"
+                    value="5.00"
                     className="bg-gray-700 border-gray-600 text-white"
                     readOnly
                   />
                   <div className="text-xs text-gray-400 mt-1">
-                    Standard blockchain network processing fee
+                    Standard blockchain network processing fee (approximately $5.00 USD)
+                  </div>
+                </div>
+
+                {/* Conversion Display */}
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3">USD to {currency} Conversion</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">USD Amount:</span>
+                      <span className="text-white">${withdrawalAmount || "0.00"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Network Fee:</span>
+                      <span className="text-white">$5.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Exchange Rate (1 USD =):</span>
+                      <span className="text-white">
+                        {currency === 'BTC' ? '0.000023 BTC' : 
+                         currency === 'ETH' ? '0.0004 ETH' : 
+                         '1.00 USDT'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-600 pt-2">
+                      <span className="text-gray-300 font-medium">You will receive:</span>
+                      <span className="text-white font-bold">
+                        {currency === 'BTC' ? `${((parseFloat(withdrawalAmount) || 0) - 5) * 0.000023} BTC` : 
+                         currency === 'ETH' ? `${((parseFloat(withdrawalAmount) || 0) - 5) * 0.0004} ETH` : 
+                         `${(parseFloat(withdrawalAmount) || 0) - 5} USDT`}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -301,7 +352,7 @@ const Withdrawal = () => {
                 {!isFullBalanceWithdrawal && parseFloat(withdrawalAmount) > 0 && (
                   <div className="flex items-center gap-2 text-red-400 text-sm">
                     <AlertCircle className="w-4 h-4" />
-                    You must withdraw your entire balance: {user?.liveBalance?.toFixed(6) || "0.000000"} {currency}
+                    You must withdraw your entire balance: ${user?.liveBalance?.toFixed(2) || "0.00"} USD
                   </div>
                 )}
 
@@ -326,21 +377,29 @@ const Withdrawal = () => {
                   </div>
                 )}
 
-                {/* Transaction Summary */}
+                {/* Final Transaction Summary */}
                 <div className="bg-gray-700 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-300 mb-3">Transaction Summary</h4>
+                  <h4 className="text-sm font-medium text-gray-300 mb-3">Final Transaction Summary</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Amount to Send:</span>
-                      <span className="text-white">{withdrawalAmount || "0.000000"} {currency}</span>
+                      <span className="text-gray-400">USD Amount:</span>
+                      <span className="text-white">${withdrawalAmount || "0.00"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Network Fee:</span>
-                      <span className="text-white">0.001 {currency}</span>
+                      <span className="text-white">$5.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Cryptocurrency:</span>
+                      <span className="text-white">{currency}</span>
                     </div>
                     <div className="flex justify-between border-t border-gray-600 pt-2">
-                      <span className="text-gray-300 font-medium">Total:</span>
-                      <span className="text-white font-bold">{(parseFloat(withdrawalAmount) || 0) + 0.001} {currency}</span>
+                      <span className="text-gray-300 font-medium">You will receive:</span>
+                      <span className="text-white font-bold">
+                        {currency === 'BTC' ? `${((parseFloat(withdrawalAmount) || 0) - 5) * 0.000023} BTC` : 
+                         currency === 'ETH' ? `${((parseFloat(withdrawalAmount) || 0) - 5) * 0.0004} ETH` : 
+                         `${(parseFloat(withdrawalAmount) || 0) - 5} USDT`}
+                      </span>
                     </div>
                   </div>
                 </div>
