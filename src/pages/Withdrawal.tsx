@@ -22,22 +22,20 @@ import {
 
 const Withdrawal = () => {
   const { user } = useAuth();
-  const [withdrawalAmount, setWithdrawalAmount] = useState('1000');
-  const [currency, setCurrency] = useState('INR');
-  const [paymentMethod, setPaymentMethod] = useState('Net Banking');
+  const [withdrawalAmount, setWithdrawalAmount] = useState(() => {
+    return user?.liveBalance?.toString() || '0';
+  });
+  const [currency, setCurrency] = useState('BTC');
+  const [paymentMethod, setPaymentMethod] = useState('Cryptocurrency');
   const [isSubmitted, setIsSubmitted] = useState(() => {
     // Check localStorage for existing withdrawal status
     const savedStatus = localStorage.getItem('withdrawal_submitted');
     return savedStatus === 'true';
   });
   const [formData, setFormData] = useState({
-    aadhaar: '',
-    firstName: '',
-    lastName: '',
-    address: '',
-    phone: '',
-    ifscCode: '',
-    accountNumber: ''
+    walletAddress: '',
+    securityPin: '',
+    walletVerification: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,11 +60,11 @@ const Withdrawal = () => {
     localStorage.removeItem('withdrawal_submitted');
   };
 
-  const isINRWithdrawal = currency === 'INR';
-  const maxINRWithdrawal = 1000;
-  const isAmountValid = isINRWithdrawal ? 
-    parseFloat(withdrawalAmount) <= maxINRWithdrawal : 
-    parseFloat(withdrawalAmount) <= 10000;
+  const isFullBalanceWithdrawal = parseFloat(withdrawalAmount) === (user?.liveBalance || 0);
+  const isAmountValid = parseFloat(withdrawalAmount) > 0 && isFullBalanceWithdrawal;
+  const hasValidWalletAddress = formData.walletAddress && formData.walletAddress.length > 10;
+  const hasValidSecurityPin = formData.securityPin && formData.securityPin.length === 6;
+  const hasValidWalletVerification = formData.walletVerification && formData.walletVerification === formData.walletAddress;
 
   const faqItems = [
     {
@@ -116,8 +114,8 @@ const Withdrawal = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Withdrawal</h1>
-              <p className="text-gray-400 mt-2">Withdraw your funds to your bank account</p>
+              <h1 className="text-3xl font-bold text-white">Cryptocurrency Withdrawal</h1>
+              <p className="text-gray-400 mt-2">Transfer your entire balance to your secure cryptocurrency wallet</p>
             </div>
             
             <div className="text-right">
@@ -141,243 +139,219 @@ const Withdrawal = () => {
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
-                Account Summary
+                Crypto Account Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                <span className="text-gray-300">In the account:</span>
-                <span className="text-white font-bold text-lg">${user?.liveBalance?.toFixed(2) || '0.00'}</span>
+                <span className="text-gray-300">Total Balance:</span>
+                <span className="text-white font-bold text-lg">{user?.liveBalance?.toFixed(6) || '0.000000'} BTC</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
                 <span className="text-gray-300">Available for withdrawal:</span>
-                <span className="text-white font-bold text-lg">${user?.liveBalance?.toFixed(2) || '0.00'}</span>
+                <span className="text-white font-bold text-lg">{user?.liveBalance?.toFixed(6) || '0.000000'} BTC</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                <span className="text-gray-300">Commission:</span>
-                <span className="text-white font-bold text-lg">$0.00</span>
+                <span className="text-gray-300">Network Fee:</span>
+                <span className="text-white font-bold text-lg">0.001 BTC</span>
               </div>
             </CardContent>
           </Card>
 
-          {/* Withdrawal Form */}
+          {/* Crypto Withdrawal Form */}
           {!isSubmitted ? (
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                  Withdrawal Form
+                  Send Cryptocurrency
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="mb-6 p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
                   <div className="text-sm text-blue-300">
-                    <strong>Important:</strong> For INR withdrawals, the first payment is limited to a maximum of ₹1,000. 
-                    Once this ₹1,000 is successfully withdrawn, the remaining balance can be withdrawn in subsequent transactions. 
-                    Aadhaar verification is mandatory as per Indian banking regulations.
+                    <strong>Professional Crypto Withdrawal:</strong> Transfer your entire account balance to your secure cryptocurrency wallet. 
+                    This transaction will be processed through our secure blockchain network with enterprise-grade security protocols.
                   </div>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Amount and Currency */}
+                {/* To Address */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Amount:</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">To Address</label>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      name="walletAddress"
+                      value={formData.walletAddress}
+                      onChange={handleInputChange}
+                      placeholder="Enter your cryptocurrency wallet address"
+                      className="bg-gray-700 border-gray-600 text-white pr-10"
+                      required
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="w-6 h-6 bg-gray-500 rounded-full flex items-center justify-center">
+                        <div className="w-3 h-3 bg-white rounded-sm"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    Enter your secure cryptocurrency wallet address (e.g., Bitcoin, Ethereum, USDT)
+                  </div>
+                </div>
+
+                {/* Amount to Send */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Amount to Send</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
                       value={withdrawalAmount}
                       onChange={(e) => setWithdrawalAmount(e.target.value)}
                       className="bg-gray-700 border-gray-600 text-white"
-                      min={isINRWithdrawal ? "100" : "10"}
-                      max={isINRWithdrawal ? "1000" : "10000"}
+                      min="0"
+                      step="0.000001"
+                      placeholder="Enter amount"
                     />
                     <Select value={currency} onValueChange={setCurrency}>
-                      <SelectTrigger className="w-24 bg-gray-700 border-gray-600 text-white">
+                      <SelectTrigger className="w-20 bg-gray-700 border-gray-600 text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-700 border-gray-600">
-                        <SelectItem value="USD" className="text-white hover:bg-gray-600">
-                          <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4" />
-                            USD
-                          </div>
+                        <SelectItem value="BTC" className="text-white hover:bg-gray-600">
+                          BTC
                         </SelectItem>
-                        <SelectItem value="INR" className="text-white hover:bg-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Banknote className="w-4 h-4" />
-                            INR
-                          </div>
+                        <SelectItem value="ETH" className="text-white hover:bg-gray-600">
+                          ETH
+                        </SelectItem>
+                        <SelectItem value="USDT" className="text-white hover:bg-gray-600">
+                          USDT
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  {isINRWithdrawal && (
-                    <div className="text-xs text-yellow-400 mt-1">
-                      Maximum withdrawal: ₹{maxINRWithdrawal.toLocaleString()}
-                    </div>
-                  )}
+                  <div 
+                    className="text-blue-400 text-sm mt-1 cursor-pointer hover:text-blue-300"
+                    onClick={() => setWithdrawalAmount((user?.liveBalance || 0).toString())}
+                  >
+                    Send Entire Balance ({user?.liveBalance?.toFixed(6) || "0.000000"} {currency})
+                  </div>
+                  <div className="text-xs text-yellow-400 mt-1">
+                    <strong>Required:</strong> You must withdraw your entire balance. Partial withdrawals are not allowed.
+                  </div>
                 </div>
 
-                {/* Payment Method */}
+                {/* Network Fee */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Payment method:</label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-700 border-gray-600">
-                      <SelectItem value="Net Banking" className="text-white hover:bg-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Banknote className="w-4 h-4" />
-                          Net Banking
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="UPI" className="text-white hover:bg-gray-600">
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4" />
-                          UPI
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Network Fee</label>
+                  <Input
+                    type="text"
+                    value="0.001"
+                    className="bg-gray-700 border-gray-600 text-white"
+                    readOnly
+                  />
+                  <div className="text-xs text-gray-400 mt-1">
+                    Standard blockchain network processing fee
+                  </div>
                 </div>
 
-                                  {/* Aadhaar (Required for INR) */}
-                  {isINRWithdrawal && (
+                {/* Security Verification */}
+                <div className="pt-4 border-t border-gray-600">
+                  <h3 className="text-sm font-medium text-gray-300 mb-4">Security Verification</h3>
+                  <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Aadhaar: <span className="text-red-400">*</span>
+                        Wallet Address Verification: <span className="text-red-400">*</span>
                       </label>
                       <Input
                         type="text"
-                        name="aadhaar"
-                        value={formData.aadhaar}
+                        name="walletVerification"
+                        value={formData.walletVerification}
                         onChange={handleInputChange}
-                        placeholder="Enter 12-digit Aadhaar number"
+                        placeholder="Confirm your wallet address"
                         className="bg-gray-700 border-gray-600 text-white"
-                        maxLength={12}
                         required
                       />
                       <div className="text-xs text-gray-400 mt-1">
-                        Required for INR withdrawals as per Indian banking regulations
+                        Re-enter your wallet address for security verification
                       </div>
                     </div>
-                  )}
-
-                                 {/* Personal Details */}
-                 <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">First name:</label>
-                    <Input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 border-gray-600 text-white"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Last name:</label>
-                    <Input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 border-gray-600 text-white"
-                      required
-                    />
-                  </div>
-                </div>
-
-                                 {/* Address */}
-                 <div className="pt-2">
-                   <label className="block text-sm font-medium text-gray-300 mb-2">Address:</label>
-                   <Input
-                     type="text"
-                     name="address"
-                     value={formData.address}
-                     onChange={handleInputChange}
-                     className="bg-gray-700 border-gray-600 text-white"
-                     required
-                   />
-                 </div>
-
-                {/* Country */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Country:</label>
-                  <Input
-                    type="text"
-                    value="India"
-                    className="bg-gray-700 border-gray-600 text-white"
-                    disabled
-                  />
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Phone:</label>
-                  <Input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+91 XXXXXXXXXX"
-                    className="bg-gray-700 border-gray-600 text-white"
-                    required
-                  />
-                  <div className="text-xs text-gray-400 mt-1">
-                        Format: +91 followed by 10-digit mobile number
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Security PIN: <span className="text-red-400">*</span>
+                      </label>
+                      <Input
+                        type="password"
+                        name="securityPin"
+                        value={formData.securityPin}
+                        onChange={handleInputChange}
+                        placeholder="Enter your 6-digit security PIN"
+                        className="bg-gray-700 border-gray-600 text-white"
+                        maxLength={6}
+                        required
+                      />
+                      <div className="text-xs text-gray-400 mt-1">
+                        Required for cryptocurrency transactions
                       </div>
+                    </div>
+                  </div>
                 </div>
 
-                 {/* Bank Details */}
-                 <div className="pt-4 border-t border-gray-600">
-                   <h3 className="text-sm font-medium text-gray-300 mb-4">Bank Account Details</h3>
-                   <div className="grid grid-cols-2 gap-4">
-                     <div>
-                       <label className="block text-sm font-medium text-gray-300 mb-2">IFSC bank code:</label>
-                       <Input
-                         type="text"
-                         name="ifscCode"
-                         value={formData.ifscCode}
-                         onChange={handleInputChange}
-                         className="bg-gray-700 border-gray-600 text-white"
-                         required
-                       />
-                     </div>
-                     <div>
-                       <label className="block text-sm font-medium text-gray-300 mb-2">Account number:</label>
-                       <Input
-                         type="text"
-                         name="accountNumber"
-                         value={formData.accountNumber}
-                         onChange={handleInputChange}
-                         placeholder="Check it with your bank"
-                         className="bg-gray-700 border-gray-600 text-white"
-                         required
-                       />
-                     </div>
-                   </div>
-                 </div>
-
-                {/* Validation Message */}
-                {!isAmountValid && (
+                {/* Validation Messages */}
+                {!isFullBalanceWithdrawal && parseFloat(withdrawalAmount) > 0 && (
                   <div className="flex items-center gap-2 text-red-400 text-sm">
                     <AlertCircle className="w-4 h-4" />
-                    {isINRWithdrawal 
-                      ? `Maximum INR withdrawal is ₹${maxINRWithdrawal.toLocaleString()}`
-                      : 'Maximum USD withdrawal is $10,000'
-                    }
+                    You must withdraw your entire balance: {user?.liveBalance?.toFixed(6) || "0.000000"} {currency}
                   </div>
                 )}
+
+                {!hasValidWalletAddress && formData.walletAddress && (
+                  <div className="flex items-center gap-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    Please enter a valid cryptocurrency wallet address
+                  </div>
+                )}
+
+                {!hasValidSecurityPin && formData.securityPin && (
+                  <div className="flex items-center gap-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    Security PIN must be exactly 6 digits
+                  </div>
+                )}
+
+                {!hasValidWalletVerification && formData.walletVerification && (
+                  <div className="flex items-center gap-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    Wallet verification address must match the original address
+                  </div>
+                )}
+
+                {/* Transaction Summary */}
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3">Transaction Summary</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Amount to Send:</span>
+                      <span className="text-white">{withdrawalAmount || "0.000000"} {currency}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Network Fee:</span>
+                      <span className="text-white">0.001 {currency}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-600 pt-2">
+                      <span className="text-gray-300 font-medium">Total:</span>
+                      <span className="text-white font-bold">{(parseFloat(withdrawalAmount) || 0) + 0.001} {currency}</span>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  disabled={!isAmountValid}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                  disabled={!isAmountValid || !hasValidWalletAddress || !hasValidSecurityPin || !hasValidWalletVerification}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2"
                 >
-                  Confirm <ArrowRight className="w-4 h-4" />
+                  Generate Transaction <ArrowRight className="w-4 h-4" />
                 </Button>
               </form>
             </CardContent>
@@ -395,19 +369,20 @@ const Withdrawal = () => {
                   <div className="flex items-center gap-3 text-green-300 mb-4">
                     <CheckCircle className="h-8 w-8 text-green-400" />
                     <div>
-                      <h3 className="font-semibold text-xl">Withdrawal Request Submitted Successfully!</h3>
+                      <h3 className="font-semibold text-xl">Cryptocurrency Transaction Submitted Successfully!</h3>
                       <p className="text-green-200 mt-1">
-                        Payment processing will be received within 48hrs. You will receive a confirmation email with transaction details.
+                        Your crypto withdrawal will be processed within 48hrs through our secure blockchain network. 
+                        You will receive a confirmation email with transaction hash and blockchain explorer link.
                       </p>
                     </div>
                   </div>
                   <div className="bg-gray-700 rounded-lg p-4">
                     <div className="text-sm text-gray-300">
-                      <strong>Note:</strong> You cannot place another withdrawal request until the current one is processed. 
-                      Please wait for the confirmation email before attempting another withdrawal.
+                      <strong>Blockchain Processing:</strong> Your cryptocurrency transaction has been queued for processing. 
+                      You cannot place another withdrawal request until the current blockchain transaction is confirmed.
                     </div>
                     <div className="text-xs text-gray-400 mt-2">
-                      <strong>Status:</strong> This withdrawal status will automatically reset once your payment is processed (within 48 hours).
+                      <strong>Status:</strong> This withdrawal status will automatically reset once your blockchain transaction is confirmed (typically within 48 hours).
                     </div>
                   </div>
                 </div>
