@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { formatIndianCurrency, formatIndianNumber, convertUSDToINR } from '@/lib/utils';
 import { 
   DollarSign, 
   Banknote, 
@@ -77,11 +78,11 @@ const Withdrawal = () => {
     },
     {
       question: 'What is the minimum withdrawal amount?',
-      answer: 'Minimum withdrawal amount is $10 for USD and ₹100 for INR.'
+      answer: 'Minimum withdrawal amount is $10 USD (₹835 INR) for cryptocurrency withdrawals. Full balance withdrawal is required.'
     },
     {
       question: 'Is there any fee for depositing or withdrawing funds from the account?',
-      answer: 'No fees are charged for deposits or withdrawals. All processing fees are covered by the platform.'
+      answer: 'Network fees of $5 USD (₹418 INR) apply for cryptocurrency withdrawals. All other processing fees are covered by the platform.'
     },
     {
       question: 'Do I need to provide any documents to make a withdrawal?',
@@ -121,9 +122,13 @@ const Withdrawal = () => {
             <div className="text-right">
               <div className="text-sm text-gray-400 mb-1">
                 Available for withdrawal: <span className="text-white font-bold text-lg">${user?.liveBalance?.toFixed(2) || '0.00'}</span>
+                <br />
+                <span className="text-gray-500 text-sm">({formatIndianCurrency(convertUSDToINR(user?.liveBalance || 0))})</span>
               </div>
               <div className="text-sm text-gray-400">
                 In the account: <span className="text-white font-bold text-lg">${user?.liveBalance?.toFixed(2) || '0.00'}</span>
+                <br />
+                <span className="text-gray-500 text-sm">({formatIndianCurrency(convertUSDToINR(user?.liveBalance || 0))})</span>
               </div>
             </div>
           </div>
@@ -145,15 +150,24 @@ const Withdrawal = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
                 <span className="text-gray-300">Total Balance:</span>
-                <span className="text-white font-bold text-lg">{user?.liveBalance?.toFixed(6) || '0.000000'} BTC</span>
+                <div className="text-right">
+                  <div className="text-white font-bold text-lg">{user?.liveBalance?.toFixed(6) || '0.000000'} BTC</div>
+                  <div className="text-gray-400 text-sm">({formatIndianCurrency(convertUSDToINR(user?.liveBalance || 0))})</div>
+                </div>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
                 <span className="text-gray-300">Available for withdrawal:</span>
-                <span className="text-white font-bold text-lg">{user?.liveBalance?.toFixed(6) || '0.000000'} BTC</span>
+                <div className="text-right">
+                  <div className="text-white font-bold text-lg">{user?.liveBalance?.toFixed(6) || '0.000000'} BTC</div>
+                  <div className="text-gray-400 text-sm">({formatIndianCurrency(convertUSDToINR(user?.liveBalance || 0))})</div>
+                </div>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
                 <span className="text-gray-300">Network Fee:</span>
-                <span className="text-white font-bold text-lg">0.001 BTC</span>
+                <div className="text-right">
+                  <div className="text-white font-bold text-lg">0.001 BTC</div>
+                  <div className="text-gray-400 text-sm">({formatIndianCurrency(convertUSDToINR(5))})</div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -220,7 +234,7 @@ const Withdrawal = () => {
                     className="text-blue-400 text-sm mt-1 cursor-pointer hover:text-blue-300"
                     onClick={() => setWithdrawalAmount((user?.liveBalance || 0).toString())}
                   >
-                    Send Entire Balance (${user?.liveBalance?.toFixed(2) || "0.00"} USD)
+                    Send Entire Balance (${user?.liveBalance?.toFixed(2) || "0.00"} USD / {formatIndianCurrency(convertUSDToINR(user?.liveBalance || 0))})
                   </div>
                   <div className="text-xs text-yellow-400 mt-1">
                     <strong>Required:</strong> You must withdraw your entire balance. Partial withdrawals are not allowed.
@@ -270,7 +284,7 @@ const Withdrawal = () => {
                     readOnly
                   />
                   <div className="text-xs text-gray-400 mt-1">
-                    Standard blockchain network processing fee (approximately $5.00 USD)
+                    Standard blockchain network processing fee (approximately $5.00 USD / {formatIndianCurrency(convertUSDToINR(5))})
                   </div>
                 </div>
 
@@ -280,11 +294,17 @@ const Withdrawal = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-400">USD Amount:</span>
-                      <span className="text-white">${withdrawalAmount || "0.00"}</span>
+                      <div className="text-right">
+                        <div className="text-white">${withdrawalAmount || "0.00"}</div>
+                        <div className="text-gray-400 text-xs">({formatIndianCurrency(convertUSDToINR(parseFloat(withdrawalAmount) || 0))})</div>
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Network Fee:</span>
-                      <span className="text-white">$5.00</span>
+                      <div className="text-right">
+                        <div className="text-white">$5.00</div>
+                        <div className="text-gray-400 text-xs">({formatIndianCurrency(convertUSDToINR(5))})</div>
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Exchange Rate (1 USD =):</span>
@@ -352,7 +372,7 @@ const Withdrawal = () => {
                 {!isFullBalanceWithdrawal && parseFloat(withdrawalAmount) > 0 && (
                   <div className="flex items-center gap-2 text-red-400 text-sm">
                     <AlertCircle className="w-4 h-4" />
-                    You must withdraw your entire balance: ${user?.liveBalance?.toFixed(2) || "0.00"} USD
+                    You must withdraw your entire balance: ${user?.liveBalance?.toFixed(2) || "0.00"} USD ({formatIndianCurrency(convertUSDToINR(user?.liveBalance || 0))})
                   </div>
                 )}
 
@@ -383,11 +403,17 @@ const Withdrawal = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-400">USD Amount:</span>
-                      <span className="text-white">${withdrawalAmount || "0.00"}</span>
+                      <div className="text-right">
+                        <div className="text-white">${withdrawalAmount || "0.00"}</div>
+                        <div className="text-gray-400 text-xs">({formatIndianCurrency(convertUSDToINR(parseFloat(withdrawalAmount) || 0))})</div>
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Network Fee:</span>
-                      <span className="text-white">$5.00</span>
+                      <div className="text-right">
+                        <div className="text-white">$5.00</div>
+                        <div className="text-gray-400 text-xs">({formatIndianCurrency(convertUSDToINR(5))})</div>
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Cryptocurrency:</span>
