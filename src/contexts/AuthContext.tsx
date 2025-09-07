@@ -85,7 +85,8 @@ const samuelUser: User = {
   totalTrades: 11893,
   winRate: 95,
   totalPnL: 349000,
-  tradeHistory: generateTradeHistory()
+  tradeHistory: generateTradeHistory(),
+  isTerminated: false
 };
 
 const jonathanUser: User = {
@@ -97,7 +98,8 @@ const jonathanUser: User = {
   totalTrades: 0,
   winRate: 0,
   totalPnL: 0,
-  tradeHistory: []
+  tradeHistory: [],
+  isTerminated: false
 };
 
 const johnUser: User = {
