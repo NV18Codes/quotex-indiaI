@@ -10,7 +10,6 @@ interface User {
   winRate: number;
   totalPnL: number;
   tradeHistory: Trade[];
-  isTerminated?: boolean;
 }
 
 interface Trade {
@@ -80,39 +79,36 @@ const samuelUser: User = {
   id: '1',
   name: 'Samuel Joseph',
   email: 'samuelkjoseph2020@gmail.com',
-  demoBalance: 2500,
-  liveBalance: 2500,
+  demoBalance: 111111.45,
+  liveBalance: 145897,
   totalTrades: 11893,
   winRate: 95,
   totalPnL: 349000,
-  tradeHistory: generateTradeHistory(),
-  isTerminated: false
+  tradeHistory: generateTradeHistory()
 };
 
 const jonathanUser: User = {
   id: '2',
   name: 'Jonathan George Jeremiah',
   email: 'jonathanjeremiah@example.com',
-  demoBalance: 2500,
-  liveBalance: 2500,
+  demoBalance: 10000,
+  liveBalance: 21000,
   totalTrades: 0,
   winRate: 0,
   totalPnL: 0,
-  tradeHistory: [],
-  isTerminated: false
+  tradeHistory: []
 };
 
 const johnUser: User = {
   id: '3',
   name: 'John Osteen Patha',
   email: 'johnnydrummer10@gmail.com',
-  demoBalance: 2500,
-  liveBalance: 2500,
+  demoBalance: 14900,
+  liveBalance: 14900,
   totalTrades: 0,
   winRate: 0,
   totalPnL: 0,
-  tradeHistory: [],
-  isTerminated: true
+  tradeHistory: []
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

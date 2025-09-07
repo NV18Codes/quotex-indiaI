@@ -14,8 +14,7 @@ import {
   BookOpen,
   Info,
   Home,
-  Clock,
-  CreditCard
+  Clock
 } from 'lucide-react';
 import AuthModal from './AuthModal';
 
@@ -37,7 +36,6 @@ const Navbar = () => {
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Markets', href: '/markets', icon: DollarSign },
     { name: 'Recent Trades', href: '/recent-trades', icon: Clock },
-    { name: 'Withdrawal', href: '/withdrawal', icon: CreditCard },
     { name: 'Settings', href: '/settings', icon: Settings }
   ];
 
