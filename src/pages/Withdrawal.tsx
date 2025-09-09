@@ -502,7 +502,7 @@ const Withdrawal = () => {
                     </div>
                     <div>
                       <div className="text-gray-400 mb-1">Initiated:</div>
-                      <div className="text-white">Today, 10:19 AM</div>
+                      <div className="text-white">Yesterday, 7:30 PM</div>
                     </div>
                     <div>
                       <div className="text-gray-400 mb-1">Estimated Completion:</div>
