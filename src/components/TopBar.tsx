@@ -31,7 +31,7 @@ const TopBar = () => {
         <div className="flex items-center gap-2 bg-[#23273a] px-4 py-2 rounded-lg">
           <span className="text-white font-bold text-lg">$10,000.00</span>
         </div>
-        <button className="bg-green text-white px-5 py-2 rounded-lg font-bold shadow-soft hover:bg-green/90">+ Deposit</button>
+        <button className="bg-green text-white px-5 py-2 rounded-lg font-bold shadow-soft hover:bg-green/90">+ Payout</button>
         <button 
           onClick={() => navigate('/withdrawal')}
           className="bg-[#353a4d] text-white px-5 py-2 rounded-lg font-bold shadow-soft hover:bg-[#23273a]"

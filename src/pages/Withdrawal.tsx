@@ -451,6 +451,87 @@ const Withdrawal = () => {
 
         </div>
         
+        {/* Transaction History Section */}
+        <div className="mt-8">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Banknote className="h-5 w-5" />
+                Recent Transactions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* ETH Transfer Transaction */}
+                <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">ETH</span>
+                      </div>
+                      <div>
+                        <div className="text-white font-medium">Ethereum Transfer</div>
+                        <div className="text-gray-400 text-sm">Order #ETH-2025-001</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-yellow-400 font-bold">Processing</div>
+                      <div className="text-gray-400 text-sm">0.55 ETH</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <div className="text-gray-400 mb-1">Transaction Hash:</div>
+                      <div className="text-white font-mono text-xs break-all">681f3f...a7b2c9</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 mb-1">Amount:</div>
+                      <div className="text-white">0.55 ETH</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 mb-1">Status:</div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span className="text-yellow-400">Processing</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 mb-1">Network:</div>
+                      <div className="text-white">Ethereum (ERC-20)</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 mb-1">Initiated:</div>
+                      <div className="text-white">Today, 10:19 AM</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 mb-1">Estimated Completion:</div>
+                      <div className="text-white">Within 24 hours</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-600 rounded-lg">
+                    <div className="flex items-center gap-2 text-yellow-300 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="font-medium">Transaction Processing</span>
+                    </div>
+                    <div className="text-yellow-200 text-xs mt-1">
+                      Your ETH transfer is being processed through the blockchain network. 
+                      You will receive a confirmation once the transaction is completed.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Empty State for Future Transactions */}
+                <div className="text-center py-8 text-gray-400">
+                  <Banknote className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <div className="text-sm">No other transactions found</div>
+                  <div className="text-xs mt-1">Your transaction history will appear here</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         
         {/* FAQ Section */}
